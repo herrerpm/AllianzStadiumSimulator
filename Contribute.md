@@ -29,3 +29,21 @@ Scopes are useful to provide contextual information of which area is the commit 
 - feat[Sound]: add background stadium crowd noise and event sounds
 - !fix[Agent]: resolve issue with fans not leaving after the game ends
 - refactor[Concurrency]: optimize buffer handling for food and ticket booths
+
+## Branch Naming
+
+`<type>/<scope>/<short-description>`
+
+###### Branch Types
+- feature: For new features or major functionality.
+- bugfix: For bug fixes.
+- hotfix: For urgent fixes that need to be applied to the main branch immediately.
+- refactor: For refactoring efforts that don’t add new features but improve code structure or performance.
+- docs: For documentation updates or additions.
+- test: For testing features.
+
+###### Examples
+- feature/vendor_agent
+- bugfix/button_overlap
+- hotfix/agent_termination
+- docs/update_readme
