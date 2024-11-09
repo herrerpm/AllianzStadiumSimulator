@@ -1,5 +1,5 @@
 
-# Development Guide
+# Contributing Guide
 
 ## Commit naming:
 For commit naming the following convention will be used
