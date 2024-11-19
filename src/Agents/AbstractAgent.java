@@ -1,19 +1,19 @@
 package Agents;
 
 public abstract class AbstractAgent<S extends Enum<S>> {
-    private S state;
+
+    protected S currentState;
 
     public AbstractAgent(S initialState) {
-        this.state = initialState;
+        this.currentState = initialState;
     }
 
-    public S getState() {
-        return state;
+    public S getCurrentState() {
+        return currentState;
     }
 
-    public void setState(S state) {
-        this.state = state;
+    public void setCurrentState(S state) {
+        this.currentState = state;
     }
 
-    public abstract void performAction();
 }

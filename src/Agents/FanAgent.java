@@ -82,12 +82,6 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
         }
         // Transition to the next state
         stateMachine.nextState();
-        // Update the base class state
-        this.setState(stateMachine.getCurrentState());
-    }
-
-    public AgentState getCurrentState() {
-        return stateMachine.getCurrentState();
     }
 
     @Override
