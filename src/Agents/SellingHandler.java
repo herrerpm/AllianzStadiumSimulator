@@ -1,17 +1,20 @@
 package Agents;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 public class SellingHandler {
     private static SellingHandler instance = null;
-    private final BlockingQueue<TicketSellerAgent> availableSellers;
+    private final Map<String, TicketSellerAgent> sellerMap;
+    private final Random random = new Random();
 
     private SellingHandler(int numberOfSellers) {
-        availableSellers = new LinkedBlockingQueue<>();
+        sellerMap = new HashMap<>();
         for (int i = 1; i <= numberOfSellers; i++) {
-            TicketSellerAgent seller = new TicketSellerAgent("Seller-" + i, this);
-            availableSellers.add(seller);
+            String sellerName = "Seller-" + i;
+            TicketSellerAgent seller = new TicketSellerAgent(sellerName, this);
+            sellerMap.put(sellerName, seller);
             Thread sellerThread = new Thread(seller);
             sellerThread.start();
         }
@@ -25,25 +28,14 @@ public class SellingHandler {
     }
 
     public void handleTicketRequest(FanAgent fanAgent) {
-        try {
-            // Take an available seller (blocks if none are available)
-            TicketSellerAgent seller = availableSellers.take();
-            System.out.println(fanAgent.getName() + " is assigned to " + seller.getName());
-            // Assign the request to the seller
-            seller.assignTicketRequest(fanAgent);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            System.out.println("SellingHandler interrupted while waiting for available seller.");
+        if (sellerMap.isEmpty()) {
+            System.out.println("No sellers available for " + fanAgent.getName() + ". Request ignored.");
+            return;
         }
-    }
-
-    public void notifySellerAvailable(TicketSellerAgent seller) {
-        try {
-            availableSellers.put(seller);
-            System.out.println(seller.getName() + " is now available.");
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            System.out.println("SellingHandler interrupted while notifying seller availability.");
-        }
+        String[] sellerKeys = sellerMap.keySet().toArray(new String[0]);
+        String randomSellerKey = sellerKeys[random.nextInt(sellerKeys.length)];
+        TicketSellerAgent seller = sellerMap.get(randomSellerKey);
+        System.out.println(fanAgent.getName() + " is assigned to " + seller.getName());
+        seller.addRequest(fanAgent);
     }
 }

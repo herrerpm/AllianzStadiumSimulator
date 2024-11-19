@@ -1,7 +1,7 @@
 package Agents;
 
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentState> implements Runnable {
 
@@ -12,49 +12,70 @@ public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentStat
 
     private final String name;
     private final SellingHandler handler;
-    private final BlockingQueue<FanAgent> ticketRequests;
+    private final Object sellerLock = new Object();
+    private final Queue<FanAgent> requestQueue = new LinkedList<>();
 
     public TicketSellerAgent(String name, SellingHandler handler) {
         super(AgentState.WAITING);
         this.name = name;
         this.handler = handler;
-        this.ticketRequests = new LinkedBlockingQueue<>();
     }
 
     public String getName() {
         return name;
     }
 
-    public void assignTicketRequest(FanAgent fanAgent) {
-        try {
-            ticketRequests.put(fanAgent);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            System.out.println(name + " interrupted while receiving a ticket request.");
+    public Object getSellerLock() {
+        return sellerLock;
+    }
+
+    public void addRequest(FanAgent fanAgent) {
+        synchronized (requestQueue) {
+            requestQueue.add(fanAgent);
+            requestQueue.notify();
         }
     }
 
     @Override
     public void run() {
         while (true) {
-            try {
-                FanAgent fanAgent = ticketRequests.take();
-                setCurrentState(AgentState.SELLING);
-                performAction(fanAgent);
-                setCurrentState(AgentState.WAITING);
-                handler.notifySellerAvailable(this);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                System.out.println(name + " thread interrupted.");
-                break;
+            FanAgent fanAgent = null;
+            synchronized (requestQueue) {
+                while (requestQueue.isEmpty()) {
+                    try {
+                        requestQueue.wait();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        System.out.println(name + " was interrupted.");
+                        return;
+                    }
+                }
+                fanAgent = requestQueue.poll();
+            }
+
+            if (fanAgent != null) {
+                processRequest(fanAgent);
             }
         }
     }
 
+    private void processRequest(FanAgent fanAgent) {
+        Object firstLock, secondLock;
+        if (System.identityHashCode(this) < System.identityHashCode(fanAgent)) {
+            firstLock = this.sellerLock;
+            secondLock = fanAgent.getFanLock();
+        } else {
+            firstLock = fanAgent.getFanLock();
+            secondLock = this.sellerLock;
+        }
 
-    public void performAction(FanAgent fanAgent) {
-        System.out.println(name + " is selling a ticket to " + fanAgent.getName());
-        sellTicket(fanAgent);
+        synchronized (firstLock) {
+            synchronized (secondLock) {
+                System.out.println(name + " is selling a ticket to " + fanAgent.getName());
+                sellTicket(fanAgent);
+                fanAgent.getFanLock().notify();
+            }
+        }
     }
 
     private void sellTicket(FanAgent fanAgent) {
