@@ -1,6 +1,8 @@
 package Agents;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -37,5 +39,25 @@ public class SellingHandler {
         TicketSellerAgent seller = sellerMap.get(randomSellerKey);
         System.out.println(fanAgent.getName() + " is assigned to " + seller.getName());
         seller.addRequest(fanAgent);
+    }
+
+    public synchronized List<TicketSellerAgent> getAvailableSellers() {
+        List<TicketSellerAgent> availableSellers = new ArrayList<>();
+        for (TicketSellerAgent seller : sellerMap.values()) {
+            if (seller.getCurrentState() == TicketSellerAgent.AgentState.WAITING) {
+                availableSellers.add(seller);
+            }
+        }
+        return availableSellers;
+    }
+
+    public synchronized List<TicketSellerAgent> getSellingSellers() {
+        List<TicketSellerAgent> sellingSellers = new ArrayList<>();
+        for (TicketSellerAgent seller : sellerMap.values()) {
+            if (seller.getCurrentState() == TicketSellerAgent.AgentState.SELLING) {
+                sellingSellers.add(seller);
+            }
+        }
+        return sellingSellers;
     }
 }
