@@ -24,7 +24,13 @@ public class StateMachine<S extends Enum<S>> {
             return;
         }
 
-        double rand = random.nextDouble();
+        // Compute total probability to handle floating-point inaccuracies
+        double totalProbability = 0.0;
+        for (Transition<S> transition : possibleTransitions) {
+            totalProbability += transition.getProbability();
+        }
+
+        double rand = random.nextDouble() * totalProbability;
         double cumulativeProbability = 0.0;
         for (Transition<S> transition : possibleTransitions) {
             cumulativeProbability += transition.getProbability();
@@ -35,9 +41,12 @@ public class StateMachine<S extends Enum<S>> {
             }
         }
 
-        // If no transition was taken, stay in the current state
-        System.out.println("Staying in state: " + currentState);
+        // Fallback in case of rounding errors
+        Transition<S> lastTransition = possibleTransitions.get(possibleTransitions.size() - 1);
+        System.out.println("Transitioning from " + currentState + " to " + lastTransition.getTargetState() + " (by default)");
+        currentState = lastTransition.getTargetState();
     }
+
 
     public S getCurrentState() {
         return currentState;
