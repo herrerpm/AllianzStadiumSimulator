@@ -1,7 +1,5 @@
 package Agents;
 
-import java.util.Random;
-
 public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runnable {
 
     public enum AgentState {
@@ -15,8 +13,9 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
     private final String name;
     private final StateMachine<AgentState> stateMachine;
     private final SellingHandler sellingHandler;
-    private final Random random;
     private final int simulationSteps;
+
+    private final Object fanLock = new Object();
 
     public FanAgent(String name, SellingHandler sellingHandler, int simulationSteps) {
         super(AgentState.BUYING_TICKET);
@@ -24,7 +23,6 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
         this.sellingHandler = sellingHandler;
         this.stateMachine = new StateMachine<>(AgentState.BUYING_TICKET);
         initializeTransitions();
-        this.random = new Random();
         this.simulationSteps = simulationSteps;
     }
 
@@ -32,7 +30,10 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
         return name;
     }
 
-    // Initialize state transitions with probabilities
+    public Object getFanLock() {
+        return fanLock;
+    }
+
     private void initializeTransitions() {
         // From BUYING_TICKET
         stateMachine.addTransition(AgentState.BUYING_TICKET, AgentState.WATCHING_GAME, 0.6);
@@ -65,22 +66,34 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
         switch (currentState) {
             case BUYING_TICKET:
                 System.out.println(name + " is attempting to buy a ticket.");
-                sellingHandler.handleTicketRequest(this);
+                synchronized (fanLock) {
+                    sellingHandler.handleTicketRequest(this);
+                    try {
+                        fanLock.wait();
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        System.out.println(name + " interrupted while waiting for ticket.");
+                    }
+                }
+                this.setCurrentState(AgentState.BUYING_TICKET);
                 break;
             case BUYING_FOOD:
                 System.out.println(name + " is buying food.");
+                this.setCurrentState(AgentState.BUYING_FOOD);
                 break;
             case BATHROOM:
                 System.out.println(name + " is using the bathroom.");
+                this.setCurrentState(AgentState.BATHROOM);
                 break;
             case WATCHING_GAME:
                 System.out.println(name + " is watching the game.");
+                this.setCurrentState(AgentState.WATCHING_GAME);
                 break;
             case GENERAL_ZONE:
                 System.out.println(name + " is in the general zone.");
+                this.setCurrentState(AgentState.GENERAL_ZONE);
                 break;
         }
-        // Transition to the next state
         stateMachine.nextState();
     }
 
@@ -90,15 +103,15 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
             System.out.println("=== " + name + " Step " + i + " ===\n");
             performAction();
             System.out.println("----------------------------\n");
-            // Adding a small delay for readability
             try {
-                Thread.sleep(1000); // 1 second
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 System.out.println(name + " interrupted.");
                 break;
             }
         }
+        Thread.currentThread().interrupt();
         System.out.println(name + " has completed all simulation steps.");
     }
 }

@@ -2,7 +2,7 @@ package Agents;
 
 public class Transition<S extends Enum<S>> {
     private final S targetState;
-    private final double probability; // Probability between 0 and 1
+    private final double probability;
 
     public Transition(S targetState, double probability) {
         this.targetState = targetState;
