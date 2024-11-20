@@ -11,12 +11,10 @@ public class StateMachine<S extends Enum<S>> {
         this.currentState = initialState;
     }
 
-    // Add a transition from a state to another with a certain probability
     public void addTransition(S fromState, S toState, double probability) {
         transitions.computeIfAbsent(fromState, k -> new ArrayList<>()).add(new Transition<>(toState, probability));
     }
 
-    // Determine and set the next state based on current state and probabilities
     public void nextState() {
         List<Transition<S>> possibleTransitions = transitions.get(currentState);
         if (possibleTransitions == null || possibleTransitions.isEmpty()) {
@@ -24,13 +22,7 @@ public class StateMachine<S extends Enum<S>> {
             return;
         }
 
-        // Compute total probability to handle floating-point inaccuracies
-        double totalProbability = 0.0;
-        for (Transition<S> transition : possibleTransitions) {
-            totalProbability += transition.getProbability();
-        }
-
-        double rand = random.nextDouble() * totalProbability;
+        double rand = random.nextDouble();
         double cumulativeProbability = 0.0;
         for (Transition<S> transition : possibleTransitions) {
             cumulativeProbability += transition.getProbability();
@@ -41,12 +33,8 @@ public class StateMachine<S extends Enum<S>> {
             }
         }
 
-        // Fallback in case of rounding errors
-        Transition<S> lastTransition = possibleTransitions.get(possibleTransitions.size() - 1);
-        System.out.println("Transitioning from " + currentState + " to " + lastTransition.getTargetState() + " (by default)");
-        currentState = lastTransition.getTargetState();
+        System.out.println("Staying in state: " + currentState);
     }
-
 
     public S getCurrentState() {
         return currentState;
