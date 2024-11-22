@@ -1,5 +1,7 @@
 package Agents;
 
+import Handlers.SellingHandler;
+
 public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runnable {
 
     public enum AgentState {
@@ -12,15 +14,13 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
 
     private final String name;
     private final StateMachine<AgentState> stateMachine;
-    private final SellingHandler sellingHandler;
     private final int simulationSteps;
 
     private final Object fanLock = new Object();
 
-    public FanAgent(String name, SellingHandler sellingHandler, int simulationSteps) {
+    public FanAgent(String name, int simulationSteps) {
         super(AgentState.BUYING_TICKET);
         this.name = name;
-        this.sellingHandler = sellingHandler;
         this.stateMachine = new StateMachine<>(AgentState.BUYING_TICKET);
         initializeTransitions();
         this.simulationSteps = simulationSteps;
@@ -67,7 +67,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
             case BUYING_TICKET:
                 System.out.println(name + " is attempting to buy a ticket.");
                 synchronized (fanLock) {
-                    sellingHandler.handleTicketRequest(this);
+                    SellingHandler.getInstance().handleTicketRequest(this);
                     try {
                         fanLock.wait();
                     } catch (InterruptedException e) {

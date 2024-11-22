@@ -1,5 +1,7 @@
 package Agents;
 
+import Handlers.SellingHandler;
+
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -76,7 +78,7 @@ public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentStat
         this.setCurrentState(AgentState.SELLING);
         System.out.println(name + " starts selling a ticket to " + fanAgent.getName());
         try {
-            Thread.sleep(10000);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             System.out.println(name + " interrupted while selling a ticket.");
