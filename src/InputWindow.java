@@ -69,7 +69,7 @@ public class InputWindow {
             sellerTime = Integer.parseInt(SellerTimeInput.getText());
 
             TableStates tableStates = new TableStates();
-            tableStates.InstantiateAgents();
+//            tableStates.InstantiateAgents();
 
             System.out.println("Fans: " + nfans);
             System.out.println("Stadium Capacity: " + capacidadEstadio);

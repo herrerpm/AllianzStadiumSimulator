@@ -38,7 +38,7 @@ public class FanHandler extends AbstractAgentHandler<FanAgent.AgentState, FanAge
     protected FanAgent createAgent() {
         int agentId = agents.size() + 1;
         String fanName = "Fan-" + agentId;
-        return new FanAgent(fanName, 5);
+        return new FanAgent(fanName, 50);
     }
 
 }

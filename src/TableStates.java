@@ -1,17 +1,17 @@
+// File: TableStates.java
+
 import Agents.FanAgent;
 import Agents.TicketSellerAgent;
 import Handlers.FanHandler;
 import Handlers.SellingHandler;
 import Managers.ThreadManager;
+import Managers.TransactionManager;
 import Tables.AgentTable;
 import Tables.AgentTableFactory;
-import Tables.FanTable;
-import Tables.SellerTable;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
-import java.util.List;
 import java.util.Timer;
 import javax.swing.table.DefaultTableModel;
 
@@ -28,13 +28,27 @@ public class TableStates {
 
     private AgentTable<FanAgent.AgentState, FanAgent> fanTable;
     private AgentTable<TicketSellerAgent.AgentState, TicketSellerAgent> sellerTable;
+
     /**
      * Constructor initializes the main table and integrates FanTable and SellerTable.
      */
     public TableStates(){
+
         sellingHandler = SellingHandler.getInstance();
         fanHandler = FanHandler.getInstance();
-        System.out.println(InputWindow.nfans);
+        System.out.println("Number of Fans before instantiation: " + InputWindow.nfans);
+
+        // Instantiate agents **before** configuring the TransactionManager
+        InstantiateAgents();
+
+        // Configure the TransactionManager with dependencies and configurations
+        TransactionManager.getInstance().configure(
+                fanHandler,
+                sellingHandler,
+                InputWindow.sellerTime
+        );
+
+        System.out.println("Number of Ticket Sellers after instantiation: " + sellingHandler.getAgents().size());
 
         // Initialize the main table frame
         ventanaDeTabla = new JFrame("Tabla de estados");
@@ -120,11 +134,12 @@ public class TableStates {
     }
 
     /**
-     * Instantiates agents by creating fan agents.
+     * Instantiates agents by creating fan agents and ticket seller agents.
      */
     public void InstantiateAgents(){
         FanHandler.getInstance().createAgents(InputWindow.nfans);
         SellingHandler.getInstance().createAgents(InputWindow.vendedoresBolestos);
+        System.out.println("Agents instantiated: " + InputWindow.nfans + " Fans and " + InputWindow.vendedoresBolestos + " Ticket Sellers.");
     }
 
     /**
