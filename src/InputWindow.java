@@ -4,8 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 public class InputWindow {
     private JFrame frame;
-    private JTextField fansInput, capacidadEstadioInput, vendedoresBolestosInput, vendedoresComidaInput, capacidadBañosInput, SellerTimeInput;
-    public static int nfans, capacidadEstadio, vendedoresBolestos, vendedoresComida, capacidadBaños, sellerTime;
+    private JTextField fansInput, capacidadEstadioInput, vendedoresBolestosInput, vendedoresComidaInput, jugadoresInput, capacidadBañosInput, SellerTimeInput;
+    public static int nfans, capacidadEstadio, vendedoresBolestos, vendedoresComida, njugadores, capacidadBaños, sellerTime; //tiempo de boletos, tiempo de comida
 
 
     public InputWindow(){
@@ -26,11 +26,16 @@ public class InputWindow {
         JLabel foodSellersLabel = new JLabel("Vendedores de comida:");
         vendedoresComidaInput = new JTextField("5");
 
+        JLabel playersLabel = new JLabel("Jugadores");
+        jugadoresInput = new JTextField("5");
+
+
         JLabel bathroomCapacityLabel = new JLabel("Capacidad de los baños:");
         capacidadBañosInput = new JTextField("6");
 
         JLabel SellerTimeAtending = new JLabel("Tiempo de venta de boletos");
         SellerTimeInput = new JTextField("3000");
+
 
 
         frame.add(fansLabel);
@@ -41,6 +46,8 @@ public class InputWindow {
         frame.add(vendedoresBolestosInput);
         frame.add(foodSellersLabel);
         frame.add(vendedoresComidaInput);
+        frame.add(playersLabel);
+        frame.add(jugadoresInput);
         frame.add(bathroomCapacityLabel);
         frame.add(capacidadBañosInput);
         frame.add(SellerTimeAtending);
@@ -65,6 +72,7 @@ public class InputWindow {
             capacidadEstadio = Integer.parseInt(capacidadEstadioInput.getText());
             vendedoresBolestos = Integer.parseInt(vendedoresBolestosInput.getText());
             vendedoresComida = Integer.parseInt(vendedoresComidaInput.getText());
+            njugadores = Integer.parseInt(jugadoresInput.getText());
             capacidadBaños = Integer.parseInt(capacidadBañosInput.getText());
             sellerTime = Integer.parseInt(SellerTimeInput.getText());
 
@@ -75,6 +83,7 @@ public class InputWindow {
             System.out.println("Stadium Capacity: " + capacidadEstadio);
             System.out.println("Ticket Sellers: " + vendedoresBolestos);
             System.out.println("Food Sellers: " + vendedoresComida);
+            System.out.println("Players: " + njugadores);
             System.out.println("Bathroom Capacity: " + capacidadBaños);
             System.out.println("Seller time attending: " + sellerTime);
 
@@ -84,5 +93,4 @@ public class InputWindow {
         }
     }
 }
-
 
