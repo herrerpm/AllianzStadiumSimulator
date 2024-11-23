@@ -5,7 +5,7 @@ import Agents.TicketSellerAgent;
 import Handlers.FanHandler;
 import Handlers.SellingHandler;
 import Managers.ThreadManager;
-import Managers.TransactionManager;
+import Managers.FanTicketSellerTransactionManager;
 import Tables.AgentTable;
 import Tables.AgentTableFactory;
 
@@ -42,7 +42,7 @@ public class TableStates {
         InstantiateAgents();
 
         // Configure the TransactionManager with dependencies and configurations
-        TransactionManager.getInstance().configure(
+        FanTicketSellerTransactionManager.getInstance().configure(
                 fanHandler,
                 sellingHandler,
                 InputWindow.sellerTime

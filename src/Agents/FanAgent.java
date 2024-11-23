@@ -1,6 +1,6 @@
 package Agents;
 
-import Managers.TransactionManager;
+import Managers.FanTicketSellerTransactionManager;
 
 public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runnable {
 
@@ -62,7 +62,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
             case INLINE_TOBUY:
                 System.out.println(name + " is waiting in line to buy a ticket.");
                 // Start transaction (will block until a seller is available)
-                TransactionManager.getInstance().handleTransaction(this);
+                FanTicketSellerTransactionManager.getInstance().handleTransaction(this);
 
                 // Wait for transaction to complete
                 synchronized (this) {
