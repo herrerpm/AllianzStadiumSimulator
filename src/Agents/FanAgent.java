@@ -1,10 +1,12 @@
 package Agents;
 
-import Handlers.SellingHandler;
+import Managers.TransactionManager;
 
 public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runnable {
 
     public enum AgentState {
+        ENTERING_STADIUM, // New starting state
+        INLINE_TOBUY,      // Represents being in line to buy a ticket
         BUYING_TICKET,
         BUYING_FOOD,
         BATHROOM,
@@ -12,89 +14,100 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
         GENERAL_ZONE
     }
 
-    private final String name;
-    private final StateMachine<AgentState> stateMachine;
+    public FanStateMachine getStateMachine() {
+        return stateMachine;
+    }
+
+    private final FanStateMachine stateMachine;
     private final int simulationSteps;
 
-    private final Object fanLock = new Object();
-
     public FanAgent(String name, int simulationSteps) {
-        super(AgentState.BUYING_TICKET);
-        this.name = name;
-        this.stateMachine = new StateMachine<>(AgentState.BUYING_TICKET);
+        // Set the initial state to ENTERING_STADIUM
+        super(name, AgentState.ENTERING_STADIUM);
+        this.stateMachine = new FanStateMachine(this); // Pass the agent to the state machine
         initializeTransitions();
         this.simulationSteps = simulationSteps;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public Object getFanLock() {
-        return fanLock;
-    }
-
     private void initializeTransitions() {
-        // From BUYING_TICKET
-        stateMachine.addTransition(AgentState.BUYING_TICKET, AgentState.WATCHING_GAME, 0.6);
-        stateMachine.addTransition(AgentState.BUYING_TICKET, AgentState.BUYING_FOOD, 0.3);
-        stateMachine.addTransition(AgentState.BUYING_TICKET, AgentState.GENERAL_ZONE, 0.1);
+        // Define transition from ENTERING_STADIUM to INLINE_TOBUY with probability 1.0
+        stateMachine.addTransition(AgentState.ENTERING_STADIUM, AgentState.INLINE_TOBUY, 1.0);
 
-        // From BUYING_FOOD
+        // Other transitions remain the same
+        stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.BUYING_FOOD, 0.3);
+        stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.BATHROOM, 0.2);
+        stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.WATCHING_GAME, 0.5);
+
         stateMachine.addTransition(AgentState.BUYING_FOOD, AgentState.WATCHING_GAME, 0.5);
         stateMachine.addTransition(AgentState.BUYING_FOOD, AgentState.BATHROOM, 0.2);
         stateMachine.addTransition(AgentState.BUYING_FOOD, AgentState.GENERAL_ZONE, 0.3);
 
-        // From BATHROOM
         stateMachine.addTransition(AgentState.BATHROOM, AgentState.WATCHING_GAME, 0.7);
         stateMachine.addTransition(AgentState.BATHROOM, AgentState.GENERAL_ZONE, 0.3);
 
-        // From WATCHING_GAME
         stateMachine.addTransition(AgentState.WATCHING_GAME, AgentState.BUYING_FOOD, 0.2);
         stateMachine.addTransition(AgentState.WATCHING_GAME, AgentState.BATHROOM, 0.1);
         stateMachine.addTransition(AgentState.WATCHING_GAME, AgentState.GENERAL_ZONE, 0.7);
-
-        // From GENERAL_ZONE
-        stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.BUYING_FOOD, 0.3);
-        stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.BATHROOM, 0.2);
-        stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.WATCHING_GAME, 0.5);
     }
 
     public void performAction() {
         AgentState currentState = stateMachine.getCurrentState();
         System.out.println(name + " Current State: " + currentState);
         switch (currentState) {
-            case BUYING_TICKET:
-                System.out.println(name + " is attempting to buy a ticket.");
-                synchronized (fanLock) {
-                    SellingHandler.getInstance().handleTicketRequest(this);
-                    try {
-                        fanLock.wait();
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        System.out.println(name + " interrupted while waiting for ticket.");
+            case ENTERING_STADIUM:
+                System.out.println(name + " is entering the stadium.");
+                stateMachine.nextState();
+                break;
+
+            case INLINE_TOBUY:
+                System.out.println(name + " is waiting in line to buy a ticket.");
+                // Start transaction (will block until a seller is available)
+                TransactionManager.getInstance().handleTransaction(this);
+
+                // Wait for transaction to complete
+                synchronized (this) {
+                    while (getCurrentState() == AgentState.BUYING_TICKET) {
+                        try {
+                            wait();
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            System.out.println(name + " interrupted while waiting for transaction to complete.");
+                            return;
+                        }
                     }
                 }
-                this.setCurrentState(AgentState.BUYING_TICKET);
+                // After transaction, proceed to next state
+                stateMachine.nextState();
                 break;
+
+            case BUYING_TICKET:
+                // This case should not occur, as we handle BUYING_TICKET in INLINE_TOBUY
+                break;
+
             case BUYING_FOOD:
                 System.out.println(name + " is buying food.");
-                this.setCurrentState(AgentState.BUYING_FOOD);
+                stateMachine.nextState();
                 break;
+
             case BATHROOM:
                 System.out.println(name + " is using the bathroom.");
-                this.setCurrentState(AgentState.BATHROOM);
+                stateMachine.nextState();
                 break;
+
             case WATCHING_GAME:
                 System.out.println(name + " is watching the game.");
-                this.setCurrentState(AgentState.WATCHING_GAME);
+                stateMachine.nextState();
                 break;
+
             case GENERAL_ZONE:
                 System.out.println(name + " is in the general zone.");
-                this.setCurrentState(AgentState.GENERAL_ZONE);
+                stateMachine.nextState();
+                break;
+
+            default:
+                stateMachine.nextState();
                 break;
         }
-        stateMachine.nextState();
     }
 
     @Override
@@ -104,14 +117,12 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
             performAction();
             System.out.println("----------------------------\n");
             try {
-                Thread.sleep(3000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                System.out.println(name + " interrupted.");
                 break;
             }
         }
-        Thread.currentThread().interrupt();
         System.out.println(name + " has completed all simulation steps.");
     }
 }

@@ -44,24 +44,6 @@ public class SellingHandler extends AbstractAgentHandler<TicketSellerAgent.Agent
     @Override
     protected TicketSellerAgent createAgent() {
         String sellerName = "Seller-" + sellerIdGenerator.getAndIncrement();
-        TicketSellerAgent seller = new TicketSellerAgent(sellerName, this);
-        return seller;
-    }
-
-    /**
-     * Handles ticket requests from FanAgents by assigning them to available TicketSellerAgents.
-     *
-     * @param fanAgent The FanAgent requesting a ticket.
-     */
-    public void handleTicketRequest(FanAgent fanAgent) {
-        List<TicketSellerAgent> availableSellers =  SellingHandler.instance.getAgentsByState(TicketSellerAgent.AgentState.WAITING);
-        if (availableSellers.isEmpty()) {
-            System.out.println("No sellers available for " + fanAgent.getName() + ". Request ignored.");
-            return;
-        }
-        // Select a random available seller
-        TicketSellerAgent seller = availableSellers.get(random.nextInt(availableSellers.size()));
-        System.out.println(fanAgent.getName() + " is assigned to " + seller.getName());
-        seller.addRequest(fanAgent);
+        return new TicketSellerAgent(sellerName);
     }
 }
