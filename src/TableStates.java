@@ -1,8 +1,11 @@
 // File: TableStates.java
 
 import Agents.FanAgent;
+import Agents.PlayerAgent;
+import Agents.PlayerStateMachine;
 import Agents.TicketSellerAgent;
 import Handlers.FanHandler;
+import Handlers.PlayerHandler;
 import Handlers.SellingHandler;
 import Managers.ThreadManager;
 import Managers.FanTicketSellerTransactionManager;
@@ -24,10 +27,14 @@ public class TableStates {
     private final DefaultTableModel tableModel;
     private final SellingHandler sellingHandler;
     private final FanHandler fanHandler;
+    private final PlayerHandler playerHandler;
+
     private JFrame ventanaDeTabla;
 
     private AgentTable<FanAgent.AgentState, FanAgent> fanTable;
     private AgentTable<TicketSellerAgent.AgentState, TicketSellerAgent> sellerTable;
+    private AgentTable<PlayerAgent.AgentState, PlayerAgent> playerTable;
+
 
     /**
      * Constructor initializes the main table and integrates FanTable and SellerTable.
@@ -36,6 +43,7 @@ public class TableStates {
 
         sellingHandler = SellingHandler.getInstance();
         fanHandler = FanHandler.getInstance();
+        playerHandler = PlayerHandler.getInstance();
         System.out.println("Number of Fans before instantiation: " + InputWindow.nfans);
 
         // Instantiate agents **before** configuring the TransactionManager
@@ -71,8 +79,8 @@ public class TableStates {
                 {"Estados de Threads", "Threads en Terminated", ThreadManager.getInstance().getThreadCountByState(Thread.State.TERMINATED)},
                 // Estados de agente
                 // Jugador
-                {"Estados de Jugador", "Threads jugando", 0},
-                {"Estados de Jugador", "Threads en banca", 0},
+                {"Estados de Jugador", "Threads jugando", playerHandler.getAgentCountByState(PlayerAgent.AgentState.PLAYING)},
+                {"Estados de Jugador", "Threads en banca", playerHandler.getAgentCountByState(PlayerAgent.AgentState.ON_BENCH)},
                 // Vendedor de boletos
                 {"Estados de vendedor Boletos", "Threads atendiendo", sellingHandler.getAgentCountByState(TicketSellerAgent.AgentState.SELLING)},
                 {"Estados de Vendedor Boletos", "Threads esperando clientes", sellingHandler.getAgentCountByState(TicketSellerAgent.AgentState.WAITING)},
@@ -80,7 +88,8 @@ public class TableStates {
                 {"Estados de vendedor comida", "Threads atendiendo", InputWindow.vendedoresComida},
                 {"Estados de Vendedor comida", "Threads esperando clientes", 0},
                 // Aficionado
-                {"Estados de Aficionado", "Threads entrando a estadio", 0},
+                {"Estados de Aficionado", "Threads entrando a estadio", fanHandler.getAgentCountByState(FanAgent.AgentState.ENTERING_STADIUM)},
+                {"Estados de Aficionado", "Threads haciendo fila", fanHandler.getAgentCountByState(FanAgent.AgentState.INLINE_TOBUY)},
                 {"Estados de Aficionado", "Threads Comprando Boleto", fanHandler.getAgentCountByState(FanAgent.AgentState.BUYING_TICKET)},
                 {"Estados de Aficionado", "Threads en zona General", fanHandler.getAgentCountByState(FanAgent.AgentState.GENERAL_ZONE)},
                 {"Estados de Aficionado", "Threads en el baño", fanHandler.getAgentCountByState(FanAgent.AgentState.BATHROOM)},
@@ -123,11 +132,9 @@ public class TableStates {
         ventanaDeTabla.setVisible(true);
 
 
-        this.fanTable =
-                AgentTableFactory.createAgentTableFromHandler(FanHandler.getInstance(), "Fan Agents Status");
-
-        // Initialize and display the separate SellerTable (optional)
-        sellerTable = AgentTableFactory.createAgentTableFromHandler(SellingHandler.getInstance(), "Seller Agents Status");;
+        this.fanTable = AgentTableFactory.createAgentTableFromHandler(FanHandler.getInstance(), "Fan Agents Status");
+        sellerTable = AgentTableFactory.createAgentTableFromHandler(SellingHandler.getInstance(), "Seller Agents Status");
+        playerTable = AgentTableFactory.createAgentTableFromHandler(PlayerHandler.getInstance(), "Player Agents Status");
 
         // Start periodic updates
         startTableUpdate();
@@ -139,6 +146,7 @@ public class TableStates {
     public void InstantiateAgents(){
         FanHandler.getInstance().createAgents(InputWindow.nfans);
         SellingHandler.getInstance().createAgents(InputWindow.vendedoresBolestos);
+        PlayerHandler.getInstance().createAgents(InputWindow.njugadores);
         System.out.println("Agents instantiated: " + InputWindow.nfans + " Fans and " + InputWindow.vendedoresBolestos + " Ticket Sellers.");
     }
 
@@ -158,6 +166,9 @@ public class TableStates {
                     // Update the separate FanTable
                     fanTable.updateTable(FanHandler.getInstance().getAgents(), FanHandler.getInstance().getAgentThreads());
 
+                    //Update player Table
+                    playerTable.updateTable(PlayerHandler.getInstance().getAgents(), PlayerHandler.getInstance().getAgentThreads());
+
                     // Update the main table
 
                     // Update thread state counts
@@ -169,8 +180,8 @@ public class TableStates {
 
                     // Update other categories
                     // Jugador
-                    tableModel.setValueAt(0, 5, 2); // Threads jugando
-                    tableModel.setValueAt(0, 6, 2); // Threads en banca
+                    tableModel.setValueAt(playerHandler.getAgentCountByState(PlayerAgent.AgentState.PLAYING), 5, 2); // Threads jugando
+                    tableModel.setValueAt(playerHandler.getAgentCountByState(PlayerAgent.AgentState.ON_BENCH), 6, 2); // Threads en banca
 
                     // Vendedor de boletos
                     tableModel.setValueAt(sellingHandler.getAgentCountByState(TicketSellerAgent.AgentState.SELLING), 7, 2);
@@ -181,12 +192,13 @@ public class TableStates {
                     tableModel.setValueAt(0, 10, 2); // Threads esperando clientes
 
                     // Aficionado
-                    tableModel.setValueAt("1", 11, 2);
-                    tableModel.setValueAt(fanHandler.getAgentCountByState(FanAgent.AgentState.BUYING_TICKET), 12, 2);
-                    tableModel.setValueAt(fanHandler.getAgentCountByState(FanAgent.AgentState.GENERAL_ZONE), 13, 2);
-                    tableModel.setValueAt(fanHandler.getAgentCountByState(FanAgent.AgentState.BATHROOM), 14, 2);
-                    tableModel.setValueAt(fanHandler.getAgentCountByState(FanAgent.AgentState.WATCHING_GAME), 15, 2);
-                    tableModel.setValueAt(fanHandler.getAgentCountByState(FanAgent.AgentState.BUYING_FOOD), 16, 2);
+                    tableModel.setValueAt(fanHandler.getAgentCountByState(FanAgent.AgentState.ENTERING_STADIUM), 11, 2);
+                    tableModel.setValueAt(fanHandler.getAgentCountByState(FanAgent.AgentState.INLINE_TOBUY), 12, 2);
+                    tableModel.setValueAt(fanHandler.getAgentCountByState(FanAgent.AgentState.BUYING_TICKET), 13, 2);
+                    tableModel.setValueAt(fanHandler.getAgentCountByState(FanAgent.AgentState.GENERAL_ZONE), 14, 2);
+                    tableModel.setValueAt(fanHandler.getAgentCountByState(FanAgent.AgentState.BATHROOM), 15, 2);
+                    tableModel.setValueAt(fanHandler.getAgentCountByState(FanAgent.AgentState.WATCHING_GAME), 16, 2);
+                    tableModel.setValueAt(fanHandler.getAgentCountByState(FanAgent.AgentState.BUYING_FOOD), 17, 2);
 
                     // Buffers
                     tableModel.setValueAt(0, 17, 2); // Entrada de taquilla

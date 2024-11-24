@@ -1,23 +1,22 @@
 package Handlers;
 
 import Agents.FanAgent;
-import Managers.ThreadManager;
-import java.util.List;
+import Agents.PlayerAgent;
+import Agents.TicketSellerAgent;
 
-/**
- * FanHandler manages FanAgent instances and their threads.
- * It extends AbstractAgentHandler to leverage common agent handling functionalities.
- */
-public class FanHandler extends AbstractAgentHandler<FanAgent.AgentState, FanAgent> {
+import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class PlayerHandler  extends AbstractAgentHandler<PlayerAgent.AgentState, PlayerAgent>{
 
     // Private constructor to enforce singleton pattern
-    private FanHandler() {
+    private PlayerHandler() {
         // Initialize any necessary fields here if needed
     }
 
     // Holder class for lazy-loaded singleton instance
     private static class Holder {
-        private static final FanHandler INSTANCE = new FanHandler();
+        private static final PlayerHandler INSTANCE = new PlayerHandler();
     }
 
     /**
@@ -25,8 +24,8 @@ public class FanHandler extends AbstractAgentHandler<FanAgent.AgentState, FanAge
      *
      * @return The singleton FanHandler instance.
      */
-    public static FanHandler getInstance() {
-        return Holder.INSTANCE;
+    public static PlayerHandler getInstance() {
+        return PlayerHandler.Holder.INSTANCE;
     }
 
     /**
@@ -35,10 +34,10 @@ public class FanHandler extends AbstractAgentHandler<FanAgent.AgentState, FanAge
      * @return A new instance of FanAgent.
      */
     @Override
-    protected FanAgent createAgent() {
+    protected PlayerAgent createAgent() {
         int agentId = agents.size() + 1;
-        String fanName = "Fan-" + agentId;
-        return new FanAgent(fanName, 50);
+        String playerName = "Player-" + agentId;
+        return new PlayerAgent(playerName, 50);
     }
 
 }
