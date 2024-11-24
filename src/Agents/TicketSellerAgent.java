@@ -20,8 +20,8 @@ public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentStat
     private final static int side_lenght = 5;
 
     @Override
-    public void draw() {
-        GraphicsManager.getInstance().getGraphics().drawRect(position.x, position.y, side_lenght, side_lenght);
+    public void draw(Graphics g) {
+        g.drawRect(position.x, position.y, side_lenght, side_lenght);
     }
 
     @Override

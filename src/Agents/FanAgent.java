@@ -37,8 +37,8 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
     }
 
     @Override
-    public void draw() {
-        GraphicsManager.getInstance().getGraphics().fillOval(position.x, position.y, diameter, diameter);
+    public void draw(Graphics g) {
+        g.fillOval(position.x, position.y, diameter, diameter);
     }
 
     private void initializeTransitions() {
@@ -130,6 +130,8 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
             System.out.println("----------------------------\n");
             try {
                 Thread.sleep(3000);
+                // Trigger repaint after state change
+                GraphicsManager.getInstance().triggerRepaint();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;

@@ -20,7 +20,7 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
 
     private static final int size = 5;
     @Override
-    public void draw() {
+    public void draw(Graphics g) {
         // Calcular los vértices del triángulo (equilátero)
         int[] xPoints = new int[3];
         int[] yPoints = new int[3];
@@ -31,7 +31,7 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
             yPoints[i] = position.y + (int) (size * Math.sin(angle));
         }
 
-        GraphicsManager.getInstance().getGraphics().fillPolygon(xPoints, yPoints, 3);
+        g.fillPolygon(xPoints, yPoints, 3);
     }
 
     public PlayerAgent(String name, int simulationSteps) {

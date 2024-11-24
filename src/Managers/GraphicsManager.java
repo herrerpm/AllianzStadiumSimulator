@@ -1,6 +1,11 @@
 package Managers;
 
 import Agents.FanAgent;
+import Agents.PlayerAgent;
+import Agents.TicketSellerAgent;
+import Handlers.FanHandler;
+import Handlers.PlayerHandler;
+import Handlers.SellingHandler;
 
 import javax.swing.*;
 import java.awt.*;
@@ -48,18 +53,30 @@ public class GraphicsManager {
         frame.setVisible(true);
     }
 
-    // Example method for drawing custom graphics
+    // Draws all agents by iterating over them
     private void drawGraphics(Graphics g) {
-        FanAgent wujiBiFan = new FanAgent("dany", 100);
+        // Draw FanAgents
         g.setColor(Color.BLUE);
-        wujiBiFan.draw();
+        for (FanAgent fan : FanHandler.getInstance().getAgents()) {
+            fan.draw(g);
+        }
+
+        // Draw PlayerAgents
+        g.setColor(Color.RED);
+        for (PlayerAgent player : PlayerHandler.getInstance().getAgents()) {
+            player.draw(g);
+        }
+
+        // Draw TicketSellerAgents
+        g.setColor(Color.GREEN);
+        for (TicketSellerAgent seller : SellingHandler.getInstance().getAgents()) {
+            seller.draw(g);
+        }
     }
 
-    /**
-     * Exposes the Graphics object for external manipulation.
-     * @return the Graphics object of the drawing panel.
-     */
-    public Graphics getGraphics() {
-        return drawPanel.getGraphics();
+
+    // Method to trigger a repaint of the drawing panel
+    public void triggerRepaint() {
+        SwingUtilities.invokeLater(() -> drawPanel.repaint());
     }
 }

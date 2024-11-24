@@ -9,7 +9,6 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
     protected Thread thread;
     protected Point position = new Point(0,0);
 
-
     public Point getPosition() {
         return position;
     }
@@ -43,5 +42,6 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
         this.thread = thread;
     }
 
-    public abstract void draw();
+    // Modified draw method to accept Graphics parameter
+    public abstract void draw(Graphics g);
 }
