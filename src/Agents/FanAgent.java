@@ -1,6 +1,7 @@
 package Agents;
 
-import Managers.TransactionManager;
+import Managers.FanFoodSellerTransactionManager;
+import Managers.FanTicketSellerTransactionManager;
 
 public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runnable {
 
@@ -9,6 +10,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
         INLINE_TOBUY,      // Represents being in line to buy a ticket
         BUYING_TICKET,
         BUYING_FOOD,
+        INLINE_TOBUY_FOOD,
         BATHROOM,
         WATCHING_GAME,
         GENERAL_ZONE
@@ -34,18 +36,15 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
         stateMachine.addTransition(AgentState.ENTERING_STADIUM, AgentState.INLINE_TOBUY, 1.0);
 
         // Other transitions remain the same
-        stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.BUYING_FOOD, 0.3);
+        stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.INLINE_TOBUY_FOOD, 0.3);
         stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.BATHROOM, 0.2);
         stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.WATCHING_GAME, 0.5);
 
-        stateMachine.addTransition(AgentState.BUYING_FOOD, AgentState.WATCHING_GAME, 0.5);
-        stateMachine.addTransition(AgentState.BUYING_FOOD, AgentState.BATHROOM, 0.2);
-        stateMachine.addTransition(AgentState.BUYING_FOOD, AgentState.GENERAL_ZONE, 0.3);
 
         stateMachine.addTransition(AgentState.BATHROOM, AgentState.WATCHING_GAME, 0.7);
         stateMachine.addTransition(AgentState.BATHROOM, AgentState.GENERAL_ZONE, 0.3);
 
-        stateMachine.addTransition(AgentState.WATCHING_GAME, AgentState.BUYING_FOOD, 0.2);
+        stateMachine.addTransition(AgentState.WATCHING_GAME, AgentState.INLINE_TOBUY_FOOD, 0.2);
         stateMachine.addTransition(AgentState.WATCHING_GAME, AgentState.BATHROOM, 0.1);
         stateMachine.addTransition(AgentState.WATCHING_GAME, AgentState.GENERAL_ZONE, 0.7);
     }
@@ -62,7 +61,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
             case INLINE_TOBUY:
                 System.out.println(name + " is waiting in line to buy a ticket.");
                 // Start transaction (will block until a seller is available)
-                TransactionManager.getInstance().handleTransaction(this);
+                FanTicketSellerTransactionManager.getInstance().handleTransaction(this);
 
                 // Wait for transaction to complete
                 synchronized (this) {
@@ -84,9 +83,28 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
                 // This case should not occur, as we handle BUYING_TICKET in INLINE_TOBUY
                 break;
 
-            case BUYING_FOOD:
-                System.out.println(name + " is buying food.");
+            case INLINE_TOBUY_FOOD:
+                System.out.println(name + " is waiting in line to buy food.");
+                // Start transaction (will block until a seller is available)
+                FanFoodSellerTransactionManager.getInstance().handleTransaction(this);
+
+                // Wait for transaction to complete
+                synchronized (this) {
+                    while (getCurrentState() == AgentState.BUYING_FOOD) {
+                        try {
+                            wait();
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            System.out.println(name + " interrupted while waiting for food transaction to complete.");
+                            return;
+                        }
+                    }
+                }
+                // After transaction, proceed to next state
                 stateMachine.nextState();
+                break;
+
+            case BUYING_FOOD:
                 break;
 
             case BATHROOM:
