@@ -1,5 +1,9 @@
 package Agents;
 
+import Managers.GraphicsManager;
+
+import java.awt.*;
+
 public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implements Runnable {
 
     public enum AgentState {
@@ -14,12 +18,30 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
     private final PlayerStateMachine stateMachine;
     private final int simulationSteps;
 
+    private static final int size = 5;
+    @Override
+    public void draw() {
+        // Calcular los vértices del triángulo (equilátero)
+        int[] xPoints = new int[3];
+        int[] yPoints = new int[3];
+
+        for (int i = 0; i < 3; i++) {
+            double angle = Math.toRadians(120 * i - 90); // Ángulos: -90°, 30°, 150°
+            xPoints[i] = position.x + (int) (size * Math.cos(angle));
+            yPoints[i] = position.y + (int) (size * Math.sin(angle));
+        }
+
+        GraphicsManager.getInstance().getGraphics().fillPolygon(xPoints, yPoints, 3);
+    }
+
     public PlayerAgent(String name, int simulationSteps) {
         // Set the initial state to ENTERING_STADIUM
         super(name, AgentState.ON_BENCH);
         this.stateMachine = new PlayerStateMachine(this); // Pass the agent to the state machine
         initializeTransitions();
         this.simulationSteps = simulationSteps;
+        position.x = 0;
+        position.y = 0;
     }
 
     private void initializeTransitions() {

@@ -1,6 +1,9 @@
 package Agents;
 
+import Managers.GraphicsManager;
 import Managers.TransactionManager;
+
+import java.awt.*;
 
 public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runnable {
 
@@ -21,12 +24,21 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
     private final FanStateMachine stateMachine;
     private final int simulationSteps;
 
+    private final static int diameter = 20;
+
     public FanAgent(String name, int simulationSteps) {
         // Set the initial state to ENTERING_STADIUM
         super(name, AgentState.ENTERING_STADIUM);
         this.stateMachine = new FanStateMachine(this); // Pass the agent to the state machine
         initializeTransitions();
         this.simulationSteps = simulationSteps;
+        position.x = 0;
+        position.y = 0;
+    }
+
+    @Override
+    public void draw() {
+        GraphicsManager.getInstance().getGraphics().fillOval(position.x, position.y, diameter, diameter);
     }
 
     private void initializeTransitions() {

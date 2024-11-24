@@ -1,10 +1,22 @@
 package Agents;
 
+import java.awt.*;
+
 public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
 
     protected S currentState;
     protected String name;
     protected Thread thread;
+    protected Point position = new Point(0,0);
+
+
+    public Point getPosition() {
+        return position;
+    }
+
+    public void setPosition(Point position) {
+        this.position = position;
+    }
 
     public AbstractAgent(String name, S initialState) {
         this.name = name;
@@ -30,4 +42,6 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
     public void setThread(Thread thread) {
         this.thread = thread;
     }
+
+    public abstract void draw();
 }
