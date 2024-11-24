@@ -1,56 +1,52 @@
-// File: src/Agents/FanAgent.java
-
 package Agents;
 
 import Managers.FanFoodSellerTransactionManager;
 import Managers.FanTicketSellerTransactionManager;
-import Buffers.BathroomBuffer;
 
 public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runnable {
 
     public enum AgentState {
-        ENTERING_STADIUM,      // New starting state
-        INLINE_TOBUY,           // Represents being in line to buy a ticket
+        ENTERING_STADIUM, // New starting state
+        INLINE_TOBUY,      // Represents being in line to buy a ticket
         BUYING_TICKET,
-        INLINE_TOBUY_FOOD,      // Represents being in line to buy food
         BUYING_FOOD,
-        BATHROOM_LINE,          // New state: waiting in line to use the bathroom
-        BATHROOM,               // State: using the bathroom
+        INLINE_TOBUY_FOOD,
+        BATHROOM,
         WATCHING_GAME,
         GENERAL_ZONE
+    }
+
+    public FanStateMachine getStateMachine() {
+        return stateMachine;
     }
 
     private final FanStateMachine stateMachine;
     private final int simulationSteps;
 
     public FanAgent(String name, int simulationSteps) {
+        // Set the initial state to ENTERING_STADIUM
         super(name, AgentState.ENTERING_STADIUM);
-        this.stateMachine = new FanStateMachine(this);
+        this.stateMachine = new FanStateMachine(this); // Pass the agent to the state machine
         initializeTransitions();
         this.simulationSteps = simulationSteps;
     }
 
     private void initializeTransitions() {
-        // Define transitions for the state machine
+        // Define transition from ENTERING_STADIUM to INLINE_TOBUY with probability 1.0
         stateMachine.addTransition(AgentState.ENTERING_STADIUM, AgentState.INLINE_TOBUY, 1.0);
 
-        stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.INLINE_TOBUY_FOOD, 0.25);
-        stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.BATHROOM_LINE, 0.25);
+        // Other transitions remain the same
+        stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.INLINE_TOBUY_FOOD, 0.3);
+        stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.BATHROOM, 0.2);
         stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.WATCHING_GAME, 0.5);
 
-        stateMachine.addTransition(AgentState.BATHROOM_LINE, AgentState.BATHROOM, 0.7);
-        stateMachine.addTransition(AgentState.BATHROOM_LINE, AgentState.GENERAL_ZONE, 0.3);
 
         stateMachine.addTransition(AgentState.BATHROOM, AgentState.WATCHING_GAME, 0.7);
         stateMachine.addTransition(AgentState.BATHROOM, AgentState.GENERAL_ZONE, 0.3);
 
         stateMachine.addTransition(AgentState.WATCHING_GAME, AgentState.INLINE_TOBUY_FOOD, 0.2);
-        stateMachine.addTransition(AgentState.WATCHING_GAME, AgentState.BATHROOM_LINE, 0.1);
+        stateMachine.addTransition(AgentState.WATCHING_GAME, AgentState.BATHROOM, 0.1);
         stateMachine.addTransition(AgentState.WATCHING_GAME, AgentState.GENERAL_ZONE, 0.7);
-    }
-
-    public FanStateMachine getStateMachine() {
-        return stateMachine;
     }
 
     public void performAction() {
@@ -64,24 +60,35 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
 
             case INLINE_TOBUY:
                 System.out.println(name + " is waiting in line to buy a ticket.");
+                // Start transaction (will block until a seller is available)
                 FanTicketSellerTransactionManager.getInstance().handleTransaction(this);
+
+                // Wait for transaction to complete
                 synchronized (this) {
                     while (getCurrentState() == AgentState.BUYING_TICKET) {
                         try {
                             wait();
                         } catch (InterruptedException e) {
                             Thread.currentThread().interrupt();
-                            System.out.println(name + " interrupted while waiting for ticket transaction to complete.");
+                            System.out.println(name + " interrupted while waiting for transaction to complete.");
                             return;
                         }
                     }
                 }
+                // After transaction, proceed to next state
                 stateMachine.nextState();
+                break;
+
+            case BUYING_TICKET:
+                // This case should not occur, as we handle BUYING_TICKET in INLINE_TOBUY
                 break;
 
             case INLINE_TOBUY_FOOD:
                 System.out.println(name + " is waiting in line to buy food.");
+                // Start transaction (will block until a seller is available)
                 FanFoodSellerTransactionManager.getInstance().handleTransaction(this);
+
+                // Wait for transaction to complete
                 synchronized (this) {
                     while (getCurrentState() == AgentState.BUYING_FOOD) {
                         try {
@@ -93,40 +100,16 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
                         }
                     }
                 }
+                // After transaction, proceed to next state
                 stateMachine.nextState();
-                break;
-
-            case BATHROOM_LINE:
-                System.out.println(name + " is waiting in line to use the bathroom.");
-                boolean entered = BathroomBuffer.getInstance().tryEnterBuffer(this);
-                if (entered) {
-                    stateMachine.nextState(); // Transition to BATHROOM
-                } else {
-                    System.out.println(name + " remains in the bathroom line.");
-                    // Optionally, you can wait for some time before retrying
-                }
-                break;
-
-            case BATHROOM:
-                try {
-                    // Simulate time spent in the bathroom
-                    System.out.println(name + " is using the bathroom.");
-                    Thread.sleep(2000); // Adjust duration as needed
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    System.out.println(name + " was interrupted while using the bathroom.");
-                } finally {
-                    BathroomBuffer.getInstance().leaveBuffer(this);
-                }
-                stateMachine.nextState();
-                break;
-
-            case BUYING_TICKET:
-                // This case should not occur as BUYING_TICKET is handled in INLINE_TOBUY
                 break;
 
             case BUYING_FOOD:
-                // This case should not occur as BUYING_FOOD is handled in INLINE_TOBUY_FOOD
+                break;
+
+            case BATHROOM:
+                System.out.println(name + " is using the bathroom.");
+                stateMachine.nextState();
                 break;
 
             case WATCHING_GAME:
@@ -152,7 +135,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
             performAction();
             System.out.println("----------------------------\n");
             try {
-                Thread.sleep(3000); // Adjust as needed
+                Thread.sleep(3000);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;

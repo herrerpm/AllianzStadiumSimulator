@@ -8,13 +8,9 @@ import Handlers.FanHandler;
 import Handlers.FoodSellingHandler;
 import Handlers.PlayerHandler;
 import Handlers.TicketSellingHandler;
-import Managers.FanFoodSellerTransactionManager;
-import Managers.FanTicketSellerTransactionManager;
 import Managers.ThreadManager;
-import Managers.FanTicketSellerTransactionManager;
 import Tables.AgentTable;
 import Tables.AgentTableFactory;
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
@@ -51,27 +47,6 @@ public class TableStates {
         fanHandler = FanHandler.getInstance();
         playerHandler = PlayerHandler.getInstance();
         foodSellingHandler = FoodSellingHandler.getInstance();
-        System.out.println("Number of Fans before instantiation: " + InputWindow.nfans);
-
-        // Instantiate agents **before** configuring the TransactionManager
-        InstantiateAgents();
-
-        // Configure the TransactionManager with dependencies and configurations
-        FanTicketSellerTransactionManager.getInstance().configure(
-                fanHandler,
-                ticketSellingHandler,
-                InputWindow.ticketSellerTime
-        );
-
-        FanFoodSellerTransactionManager.getInstance().configure(
-                fanHandler,
-                foodSellingHandler,
-                InputWindow.foodSellerTime
-        );
-
-        System.out.println("Number of Ticket Sellers after instantiation: " + ticketSellingHandler.getAgents().size());
-        System.out.println("Number of Food Sellers after instantiation: " + foodSellingHandler.getAgents().size());
-
 
         // Initialize the main table frame
         ventanaDeTabla = new JFrame("Tabla de estados");
@@ -112,7 +87,7 @@ public class TableStates {
                 {"Estados de Aficionado", "Threads comprando comida", fanHandler.getAgentCountByState(FanAgent.AgentState.BUYING_FOOD)},
                 // Buffers
                 {"Buffers", "Entrada de taquilla", 0},
-                {"Buffers", "Baños", InputWindow.capacidadBaños},
+                {"Buffers", "Baños", 0},
                 {"Buffers", "Gradas", 0},
                 {"Buffers", "En el estadio", 0},
                 // Zonas criticas
@@ -157,16 +132,7 @@ public class TableStates {
         startTableUpdate();
     }
 
-    /**
-     * Instantiates agents by creating fan agents and ticket seller agents.
-     */
-    public void InstantiateAgents(){
-        FanHandler.getInstance().createAgents(InputWindow.nfans);
-        TicketSellingHandler.getInstance().createAgents(InputWindow.vendedoresBolestos);
-        PlayerHandler.getInstance().createAgents(InputWindow.njugadores);
-        FoodSellingHandler.getInstance().createAgents(InputWindow.vendedoresComida);
-        System.out.println("Agents instantiated: " + InputWindow.nfans + " Fans and " + InputWindow.vendedoresBolestos + " Ticket Sellers.");
-    }
+
 
     /**
      * Starts the timer to update the tables at fixed intervals.
@@ -223,7 +189,7 @@ public class TableStates {
 
                     // Buffers
                     tableModel.setValueAt(0, 17, 2); // Entrada de taquilla
-                    tableModel.setValueAt(InputWindow.capacidadBaños, 18, 2); // Baños
+                    tableModel.setValueAt(0, 18, 2); // Baños
                     tableModel.setValueAt(0, 19, 2); // Gradas
                     tableModel.setValueAt(0, 20, 2); // En el estadio
 
@@ -233,16 +199,8 @@ public class TableStates {
                     tableModel.setValueAt(0, 23, 2); // Registro de boleto
                 });
             }
-        }, 0, 1000); // Update every 1000 milliseconds (1 second)
+        }, 0, 1000);
     }
 
-    /**
-     * Closes all tables and performs cleanup.
-     */
-    public void close() {
-        fanTable.close();
-        ticketSellerTable.close();
-        ventanaDeTabla.dispose();
-        // Cancel timers or perform other cleanup if necessary
-    }
+
 }
