@@ -4,8 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 public class InputWindow {
     private JFrame frame;
-    private JTextField fansInput, capacidadEstadioInput, vendedoresBolestosInput, vendedoresComidaInput, jugadoresInput, capacidadBañosInput, SellerTimeInput;
-    public static int nfans, capacidadEstadio, vendedoresBolestos, vendedoresComida, njugadores, capacidadBaños, sellerTime; //tiempo de boletos, tiempo de comida
+    private JTextField fansInput, capacidadEstadioInput, vendedoresBolestosInput, vendedoresComidaInput, jugadoresInput, capacidadBañosInput, ticketSellerTimeInput, foodSellerTimeInput;
+    public static int nfans, capacidadEstadio, vendedoresBolestos, vendedoresComida, njugadores, capacidadBaños, ticketSellerTime, foodSellerTime; //tiempo de boletos, tiempo de comida
 
 
     public InputWindow(){
@@ -29,12 +29,14 @@ public class InputWindow {
         JLabel playersLabel = new JLabel("Jugadores");
         jugadoresInput = new JTextField("5");
 
-
         JLabel bathroomCapacityLabel = new JLabel("Capacidad de los baños:");
         capacidadBañosInput = new JTextField("6");
 
-        JLabel SellerTimeAtending = new JLabel("Tiempo de venta de boletos");
-        SellerTimeInput = new JTextField("3000");
+        JLabel ticketSellerTimeAtending = new JLabel("Tiempo de venta de boletos");
+        ticketSellerTimeInput = new JTextField("3000");
+
+        JLabel foodSellerTimeAtending = new JLabel("Tiempo de venta de boletos");
+        foodSellerTimeInput = new JTextField("3000");
 
 
 
@@ -50,8 +52,11 @@ public class InputWindow {
         frame.add(jugadoresInput);
         frame.add(bathroomCapacityLabel);
         frame.add(capacidadBañosInput);
-        frame.add(SellerTimeAtending);
-        frame.add(SellerTimeInput);
+        frame.add(foodSellerTimeAtending);
+        frame.add(foodSellerTimeInput);
+        frame.add(ticketSellerTimeAtending);
+        frame.add(ticketSellerTimeInput);
+
 
         JButton submitButton = new JButton("Confirmar");
         submitButton.addActionListener(new ActionListener() {
@@ -74,7 +79,8 @@ public class InputWindow {
             vendedoresComida = Integer.parseInt(vendedoresComidaInput.getText());
             njugadores = Integer.parseInt(jugadoresInput.getText());
             capacidadBaños = Integer.parseInt(capacidadBañosInput.getText());
-            sellerTime = Integer.parseInt(SellerTimeInput.getText());
+            foodSellerTime = Integer.parseInt(foodSellerTimeInput.getText());
+            ticketSellerTime = Integer.parseInt(ticketSellerTimeInput.getText());
 
             TableStates tableStates = new TableStates();
 //            tableStates.InstantiateAgents();
@@ -85,7 +91,8 @@ public class InputWindow {
             System.out.println("Food Sellers: " + vendedoresComida);
             System.out.println("Players: " + njugadores);
             System.out.println("Bathroom Capacity: " + capacidadBaños);
-            System.out.println("Seller time attending: " + sellerTime);
+            System.out.println("Food Seller time attending: " + foodSellerTime);
+            System.out.println("Ticket Seller time attending: " + ticketSellerTime);
 
             frame.dispose();
         } catch (NumberFormatException ex) {

@@ -5,7 +5,7 @@ import Agents.FanAgent;
 import Agents.TicketSellerAgent;
 import Handlers.AbstractAgentHandler;
 import Handlers.FanHandler;
-import Handlers.SellingHandler;
+import Handlers.TicketSellingHandler;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ import java.util.List;
 public class FanTicketSellerTransactionManager extends AbstractTransactionManager<FanAgent, TicketSellerAgent> {
 
     private FanHandler fanHandler;
-    private SellingHandler sellingHandler;
+    private TicketSellingHandler sellingHandler;
     private int sellerTime; // in milliseconds
 
     // Eagerly initialized Singleton instance without parameters
@@ -46,7 +46,7 @@ public class FanTicketSellerTransactionManager extends AbstractTransactionManage
             throw new IllegalStateException("TransactionManager is already configured.");
         }
         this.fanHandler = (FanHandler) requesterHandler;
-        this.sellingHandler = (SellingHandler) responderHandler;
+        this.sellingHandler = (TicketSellingHandler) responderHandler;
         this.sellerTime = transactionTime;
 
         List<TicketSellerAgent> sellers = sellingHandler.getAgents();
