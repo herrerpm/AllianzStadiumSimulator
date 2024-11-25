@@ -1,3 +1,5 @@
+// File: src/Network/Client.java
+
 package Network;
 
 import java.io.BufferedReader;
@@ -5,12 +7,14 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A singleton Client class that connects to a server,
  * sends messages to the server, receives messages from the server,
- * and can gracefully close the connection.
+ * and notifies listeners upon successful connections.
  */
 public class Client {
     // Singleton instance
@@ -19,6 +23,7 @@ public class Client {
     // Server configurations
     private String serverAddress;
     private int serverPort;
+    private String connectionPin;
     private Socket socket;
     private PrintWriter out;
     private BufferedReader in;
@@ -26,9 +31,13 @@ public class Client {
     // Flag to control the receiver thread
     private AtomicBoolean isRunning;
 
+    // Listeners for connection events
+    private final List<ConnectionListener> listeners;
+
     // Private constructor to prevent instantiation
     private Client() {
         isRunning = new AtomicBoolean(false);
+        listeners = new CopyOnWriteArrayList<>();
     }
 
     /**
@@ -44,24 +53,53 @@ public class Client {
     }
 
     /**
-     * Configures the client with the server's address and port.
+     * Configures the client with the server's address, port, and connection PIN.
      *
      * @param address The server's IP address or hostname.
      * @param port    The server's port number.
+     * @param pin     The connection PIN.
      */
-    public void config(String address, int port) {
+    public void config(String address, int port, String pin) {
         this.serverAddress = address;
         this.serverPort = port;
+        this.connectionPin = pin;
     }
 
     /**
-     * Connects to the server using the configured address and port.
+     * Registers a ConnectionListener to receive connection events.
+     *
+     * @param listener The ConnectionListener to register.
+     */
+    public void addConnectionListener(ConnectionListener listener) {
+        listeners.add(listener);
+    }
+
+    /**
+     * Removes a previously registered ConnectionListener.
+     *
+     * @param listener The ConnectionListener to remove.
+     */
+    public void removeConnectionListener(ConnectionListener listener) {
+        listeners.remove(listener);
+    }
+
+    /**
+     * Notifies all registered listeners that a client connection has been established.
+     */
+    private void notifyClientConnectionEstablished() {
+        for (ConnectionListener listener : listeners) {
+            listener.onClientConnectionEstablished();
+        }
+    }
+
+    /**
+     * Connects to the server using the configured address, port, and PIN.
      *
      * @throws IOException If an I/O error occurs when creating the socket.
      */
     public void connect() throws IOException {
-        if (serverAddress == null || serverPort <= 0) {
-            throw new IllegalStateException("Client not configured. Call config() first.");
+        if (serverAddress == null || serverPort <= 0 || connectionPin == null) {
+            throw new IllegalStateException("Client not properly configured. Call config() first.");
         }
 
         socket = new Socket(serverAddress, serverPort);
@@ -69,6 +107,12 @@ public class Client {
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         isRunning.set(true);
         System.out.println("Connected to server " + serverAddress + " on port " + serverPort + ".");
+
+        // Send the connection PIN to authenticate
+        sendMessage(connectionPin);
+
+        // Start receiving messages
+        receiveMessageFromServer();
     }
 
     /**
@@ -76,7 +120,7 @@ public class Client {
      *
      * @param message The message to send.
      */
-    public void sendMessageToServer(String message) {
+    public void sendMessage(String message) {
         if (out != null) {
             out.println(message);
             System.out.println("Sent to server: " + message);
@@ -99,6 +143,10 @@ public class Client {
                 String message;
                 while (isRunning.get() && (message = in.readLine()) != null) {
                     System.out.println("Received from server: " + message);
+                    // Check if the server accepted the PIN
+                    if (message.equals("PIN accepted. You are now connected.")) {
+                        notifyClientConnectionEstablished();
+                    }
                 }
             } catch (IOException e) {
                 if (isRunning.get()) {
@@ -107,7 +155,7 @@ public class Client {
             } finally {
                 close();
             }
-        }).start();
+        }, "Client-Receiver-Thread").start();
     }
 
     /**
@@ -139,31 +187,23 @@ public class Client {
      */
     public static void main(String[] args) {
         Client client = Client.getInstance();
-        client.config("localhost", 12345); // Set your server's address and port
+        client.config("localhost", 12345, "123456"); // Set your server's address, port, and PIN
+
+        // Optionally, add a ConnectionListener here if running client standalone
+        // For GUI integration, listeners should be added from the GUI class
 
         try {
             client.connect();
-            client.receiveMessageFromServer();
-
-            // Read user input from the console and send to the server
-            BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
-            String userInput;
-
-            System.out.println("Enter messages to send to the server (type 'exit' to quit):");
-
-            while ((userInput = consoleReader.readLine()) != null) {
-                if (userInput.equalsIgnoreCase("exit")) {
-                    break;
-                }
-                client.sendMessageToServer(userInput);
-            }
-
-            // Close resources
-            client.close();
-            consoleReader.close();
         } catch (IOException e) {
             System.err.println("Client encountered an error: " + e.getMessage());
             client.close();
+            return;
         }
+
+        // Add a shutdown hook to gracefully close the client
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            System.out.println("\nShutting down client...");
+            client.close();
+        }));
     }
 }

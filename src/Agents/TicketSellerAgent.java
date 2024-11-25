@@ -10,20 +10,10 @@ public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentStat
     }
 
     // New attribute to store the current zone
-    private Zone currentZone;
 
     public TicketSellerAgent(String name) {
         super(name, AgentState.WAITING);
     }
-
-    public Zone getCurrentZone() {
-        return currentZone;
-    }
-
-    public void setCurrentZone(Zone zone) {
-        this.currentZone = zone;
-    }
-
     @Override
     public void _run() {
         // The seller's actions are managed by the TransactionManager,

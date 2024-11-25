@@ -1,16 +1,20 @@
+// File: src/Network/Server.java
+
 package Network;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.net.*;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A singleton Server class that handles client connections,
- * reads messages from clients, and sends messages to clients.
+ * reads messages from clients, sends messages to clients,
+ * and notifies listeners upon successful connections.
  */
 public class Server {
     // Singleton instance
@@ -21,12 +25,19 @@ public class Server {
     private ServerSocket serverSocket;
     private boolean isRunning;
 
+    // Connection PIN for client authentication
+    private String connectionPin;
+
     // Map to keep track of connected clients
     private ConcurrentHashMap<String, ClientHandler> clients;
+
+    // Listeners for connection events
+    private final List<ConnectionListener> listeners;
 
     // Private constructor to prevent instantiation
     private Server() {
         clients = new ConcurrentHashMap<>();
+        listeners = new CopyOnWriteArrayList<>();
     }
 
     /**
@@ -51,11 +62,67 @@ public class Server {
     }
 
     /**
+     * Sets the connection PIN required for client authentication.
+     *
+     * @param pin The connection PIN.
+     */
+    public void setConnectionPin(String pin) {
+        this.connectionPin = pin;
+    }
+
+    /**
+     * Retrieves the server's IP address.
+     *
+     * @return The server's IP address as a String.
+     * @throws UnknownHostException If the local host name could not be resolved into an address.
+     */
+    public String getServerIp() throws UnknownHostException {
+        InetAddress inetAddress = InetAddress.getLocalHost();
+        return inetAddress.getHostAddress();
+    }
+
+    /**
+     * Registers a ConnectionListener to receive connection events.
+     *
+     * @param listener The ConnectionListener to register.
+     */
+    public void addConnectionListener(ConnectionListener listener) {
+        listeners.add(listener);
+    }
+
+    /**
+     * Removes a previously registered ConnectionListener.
+     *
+     * @param listener The ConnectionListener to remove.
+     */
+    public void removeConnectionListener(ConnectionListener listener) {
+        listeners.remove(listener);
+    }
+
+    /**
+     * Notifies all registered listeners that a server connection has been established.
+     */
+    private void notifyServerConnectionEstablished() {
+        for (ConnectionListener listener : listeners) {
+            listener.onServerConnectionEstablished();
+        }
+    }
+
+    /**
+     * Notifies all registered listeners that a client has successfully connected.
+     */
+    private void notifyClientConnectionEstablished() {
+        for (ConnectionListener listener : listeners) {
+            listener.onClientConnectionEstablished();
+        }
+    }
+
+    /**
      * Starts the server and begins listening for client connections.
      *
      * @throws IOException If an I/O error occurs when opening the socket.
      */
-    public void start() throws IOException {
+    public void startServer() throws IOException {
         if (port <= 0) {
             throw new IllegalStateException("Server port not configured. Call config() first.");
         }
@@ -74,20 +141,20 @@ public class Server {
 
                     ClientHandler handler = new ClientHandler(clientSocket, clientId);
                     clients.put(clientId, handler);
-                    new Thread(handler).start();
+                    new Thread(handler, "ClientHandler-" + clientId).start();
                 } catch (IOException e) {
                     if (isRunning) {
                         System.err.println("Error accepting client connection: " + e.getMessage());
                     }
                 }
             }
-        }).start();
+        }, "Server-Accept-Thread").start();
     }
 
     /**
      * Stops the server and disconnects all clients.
      */
-    public void stop() {
+    public void stopServer() {
         isRunning = false;
         try {
             // Close the server socket to stop accepting new clients
@@ -196,8 +263,25 @@ public class Server {
         @Override
         public void run() {
             try {
-                // Send a welcome message to the client
-                sendMessage("Welcome to the server!");
+                // First, expect the connection PIN from the client
+                String receivedPin = readFromClient();
+                if (receivedPin == null) {
+                    System.out.println("Client " + clientId + " disconnected before sending PIN.");
+                    return;
+                }
+
+                System.out.println("Received PIN from " + clientId + ": " + receivedPin);
+                if (!receivedPin.equals(connectionPin)) {
+                    System.out.println("Invalid PIN from " + clientId + ". Disconnecting client.");
+                    sendMessage("Invalid Connection PIN. Disconnecting.");
+                    return;
+                }
+
+                // Send confirmation to client
+                sendMessage("PIN accepted. You are now connected.");
+
+                // Notify listeners that a connection has been established
+                notifyServerConnectionEstablished();
 
                 String message;
                 while (isClientRunning && (message = readFromClient()) != null) {
@@ -222,9 +306,13 @@ public class Server {
     public static void main(String[] args) {
         Server server = Server.getInstance();
         server.config(12345); // Set your desired port
+        server.setConnectionPin("123456"); // Set a default PIN or prompt the user
+
+        // Optionally, add a ConnectionListener here if running server standalone
+        // For GUI integration, listeners should be added from the GUI class
 
         try {
-            server.start();
+            server.startServer();
         } catch (IOException e) {
             System.err.println("Failed to start the server: " + e.getMessage());
             return;
@@ -233,7 +321,7 @@ public class Server {
         // Add a shutdown hook to gracefully stop the server
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             System.out.println("\nShutting down server...");
-            server.stop();
+            server.stopServer();
         }));
     }
 }
