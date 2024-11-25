@@ -3,8 +3,12 @@
 package Agents;
 
 import Handlers.SellingHandler;
+import Managers.GraphicsManager;
+import java.awt.*;
 
 public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentState> implements Runnable {
+
+
 
     public enum AgentState {
         SELLING,
@@ -23,6 +27,17 @@ public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentStat
 
         super(name, AgentState.WAITING);
         this.transactionTime = System.currentTimeMillis();
+    }
+    private final static int side_lenght = 5;
+
+    @Override
+    public void draw(Graphics g) {
+        g.setColor(getColorForState());
+        g.drawRect(position.x, position.y, side_lenght, side_lenght);
+    }
+
+    private Color getColorForState() {
+        return currentState == AgentState.SELLING ? Color.GREEN : Color.LIGHT_GRAY;
     }
     @Override
     public void _run() {

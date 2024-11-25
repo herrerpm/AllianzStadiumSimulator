@@ -1,7 +1,10 @@
 package Agents;
 
+import Managers.GraphicsManager;
 import Managers.FanFoodSellerTransactionManager;
 import Managers.FanTicketSellerTransactionManager;
+
+import java.awt.*;
 
 public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runnable {
 
@@ -16,12 +19,14 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
         GENERAL_ZONE
     }
 
-    public FanStateMachine getStateMachine() {
-        return stateMachine;
+    public void setCurrentState(FanAgent.AgentState state){
+        this.stateMachine.setCurrentState(state);
     }
 
     private final FanStateMachine stateMachine;
     private final int simulationSteps;
+
+    private final static int diameter = 20;
 
     public FanAgent(String name, int simulationSteps) {
         // Set the initial state to ENTERING_STADIUM
@@ -29,6 +34,34 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
         this.stateMachine = new FanStateMachine(this); // Pass the agent to the state machine
         initializeTransitions();
         this.simulationSteps = simulationSteps;
+        position.x = 0;
+        position.y = 0;
+    }
+
+    @Override
+    public void draw(Graphics g) {
+        g.setColor(getColorForState());
+        g.fillOval(position.x, position.y, diameter, diameter);
+    }
+    private Color getColorForState() {
+        switch (currentState) {
+            case ENTERING_STADIUM:
+                return Color.BLUE;
+            case INLINE_TOBUY:
+                return Color.ORANGE;
+            case BUYING_TICKET:
+                return Color.RED;
+            case BUYING_FOOD:
+                return Color.GREEN;
+            case BATHROOM:
+                return Color.CYAN;
+            case WATCHING_GAME:
+                return Color.MAGENTA;
+            case GENERAL_ZONE:
+                return Color.GRAY;
+            default:
+                return Color.BLACK; // Default color
+        }
     }
 
     private void initializeTransitions() {
@@ -136,6 +169,8 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
             System.out.println("----------------------------\n");
             try {
                 Thread.sleep(3000);
+                // Trigger repaint after state change
+                GraphicsManager.getInstance().triggerRepaint();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;

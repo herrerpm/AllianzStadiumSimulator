@@ -4,9 +4,12 @@ name: Java CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - '**'  # Triggers on push to any branch
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
+      - release/0.2
 
 jobs:
   build:
