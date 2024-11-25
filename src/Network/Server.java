@@ -2,6 +2,7 @@
 
 package Network;
 
+import Agents.FanAgent;
 import Handlers.FanHandler;
 
 import java.io.BufferedReader;
@@ -262,7 +263,7 @@ public class Server {
                         System.out.println("Name: " + name);
                         System.out.println("Zone: " + zone);
                         if (command.equals("create")){
-                            FanHandler.getInstance().createCustomAgent(name+" From:"+zone);
+                            FanHandler.getInstance().createCustomAgent(name+" From:"+zone).getStateMachine().setCurrentState(FanAgent.AgentState.GENERAL_ZONE);
                         }
 
                     } else {

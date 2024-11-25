@@ -2,6 +2,7 @@
 
 package Network;
 
+import Agents.FanAgent;
 import Handlers.FanHandler;
 
 import java.io.BufferedReader;
@@ -157,7 +158,7 @@ public class Client {
                         System.out.println("Name: " + name);
                         System.out.println("Zone: " + zone);
                         if (command.equals("create")){
-                            FanHandler.getInstance().createCustomAgent(name+" From:"+zone);
+                            FanHandler.getInstance().createCustomAgent(name+" From:"+zone).getStateMachine().setCurrentState(FanAgent.AgentState.GENERAL_ZONE);
                         }
 
                     } else {
@@ -165,7 +166,7 @@ public class Client {
                     }
 
                     // Check if the server accepted the PIN
-                    if (message.equals("PIN accepted. You are now connected.")) {
+                    if (message.equals("Connected.")) {
                         notifyClientConnectionEstablished();
                     }
                 }
