@@ -1,18 +1,13 @@
 package Handlers;
 
-import Agents.FanAgent;
+import Agents.FoodSellerAgent;
 import Agents.TicketSellerAgent;
 
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * SellingHandler manages TicketSellerAgents using the AbstractAgentHandler framework.
- * It ensures that agents are created, managed, and assigned to FanAgents efficiently.
- */
-public class SellingHandler extends AbstractAgentHandler<TicketSellerAgent.AgentState, TicketSellerAgent> {
-    private static SellingHandler instance = null;
+public class FoodSellingHandler extends AbstractAgentHandler<FoodSellerAgent.AgentState, FoodSellerAgent> {
+    private static FoodSellingHandler instance = null;
     private final Random random = new Random();
     private final AtomicInteger sellerIdGenerator = new AtomicInteger(1);
 
@@ -20,7 +15,7 @@ public class SellingHandler extends AbstractAgentHandler<TicketSellerAgent.Agent
      * Private constructor to enforce singleton pattern.
      *
      */
-    private SellingHandler() {
+    private FoodSellingHandler() {
         super();
     }
 
@@ -29,9 +24,9 @@ public class SellingHandler extends AbstractAgentHandler<TicketSellerAgent.Agent
      *
      * @return Singleton instance of SellingHandler.
      */
-    public static synchronized SellingHandler getInstance() {
+    public static synchronized FoodSellingHandler getInstance() {
         if (instance == null) {
-            instance = new SellingHandler();
+            instance = new FoodSellingHandler();
         }
         return instance;
     }
@@ -42,8 +37,8 @@ public class SellingHandler extends AbstractAgentHandler<TicketSellerAgent.Agent
      * @return A new instance of TicketSellerAgent.
      */
     @Override
-    protected TicketSellerAgent createAgent() {
-        String sellerName = "Seller-" + sellerIdGenerator.getAndIncrement();
-        return new TicketSellerAgent(sellerName);
+    protected FoodSellerAgent createAgent() {
+        String sellerName = "Food Seller-" + sellerIdGenerator.getAndIncrement();
+        return new FoodSellerAgent(sellerName);
     }
 }

@@ -1,12 +1,17 @@
+import Handlers.SystemHandler;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-public class InputWindow {
-    private JFrame frame;
-    private JTextField fansInput, capacidadEstadioInput, vendedoresBolestosInput, vendedoresComidaInput, capacidadBañosInput, SellerTimeInput;
-    public static int nfans, capacidadEstadio, vendedoresBolestos, vendedoresComida, capacidadBaños, sellerTime;
+import java.util.HashMap;
+import java.util.Map;
 
+public class InputWindow {
+    private static InputWindow instance;
+    private JFrame frame;
+    private final Map<String, JTextField> inputFields = new HashMap<>();
+    private final Map<String, Integer> inputValues = new HashMap<>();
 
     public InputWindow(){
         frame = new JFrame("Datos de entrada");
@@ -14,37 +19,21 @@ public class InputWindow {
         frame.setSize(400, 400);
         frame.setLayout(new GridLayout(10, 2, 10, 10));
 
-        JLabel fansLabel = new JLabel("Numero de fans:");
-        fansInput = new JTextField("20");
+       //Create inputs and text fields
+        Map<String, Integer> variables = SystemHandler.getInstance().getInputVariables();
+        for (Map.Entry<String, Integer> entry : variables.entrySet()) {
+            String key = entry.getKey();
+            Integer defaultValue = entry.getValue();
 
-        JLabel stadiumCapacityLabel = new JLabel("Capacidad de estadio:");
-        capacidadEstadioInput = new JTextField("100");
+            JLabel label = new JLabel(key + ":");
+            JTextField textField = new JTextField(String.valueOf(defaultValue));
 
-        JLabel ticketSellersLabel = new JLabel("Vendedores de tickets:");
-        vendedoresBolestosInput = new JTextField("5");
-
-        JLabel foodSellersLabel = new JLabel("Vendedores de comida:");
-        vendedoresComidaInput = new JTextField("5");
-
-        JLabel bathroomCapacityLabel = new JLabel("Capacidad de los baños:");
-        capacidadBañosInput = new JTextField("6");
-
-        JLabel SellerTimeAtending = new JLabel("Tiempo de venta de boletos");
-        SellerTimeInput = new JTextField("3000");
+            inputFields.put(key, textField);
+            frame.add(label);
+            frame.add(textField);
+        }
 
 
-        frame.add(fansLabel);
-        frame.add(fansInput);
-        frame.add(stadiumCapacityLabel);
-        frame.add(capacidadEstadioInput);
-        frame.add(ticketSellersLabel);
-        frame.add(vendedoresBolestosInput);
-        frame.add(foodSellersLabel);
-        frame.add(vendedoresComidaInput);
-        frame.add(bathroomCapacityLabel);
-        frame.add(capacidadBañosInput);
-        frame.add(SellerTimeAtending);
-        frame.add(SellerTimeInput);
 
         JButton submitButton = new JButton("Confirmar");
         submitButton.addActionListener(new ActionListener() {
@@ -59,30 +48,36 @@ public class InputWindow {
         frame.setVisible(true);
     }
 
+    public static InputWindow getInstance() {
+        if (instance == null) {
+            instance = new InputWindow();
+        }
+        return instance;
+    }
+
     private void handleInput() {
         try {
-            nfans = Integer.parseInt(fansInput.getText());
-            capacidadEstadio = Integer.parseInt(capacidadEstadioInput.getText());
-            vendedoresBolestos = Integer.parseInt(vendedoresBolestosInput.getText());
-            vendedoresComida = Integer.parseInt(vendedoresComidaInput.getText());
-            capacidadBaños = Integer.parseInt(capacidadBañosInput.getText());
-            sellerTime = Integer.parseInt(SellerTimeInput.getText());
+            //Get input values from Map
+            for (Map.Entry<String, JTextField> entry : inputFields.entrySet()) {
+                String key = entry.getKey();
+                JTextField textField = entry.getValue();
+                int value = Integer.parseInt(textField.getText());
+                inputValues.put(key, value);
+            }
 
-            TableStates tableStates = new TableStates();
-//            tableStates.InstantiateAgents();
+            System.out.println("Input values saved successfully:");
+            for (Map.Entry<String, Integer> entry : inputValues.entrySet()) {
+                System.out.println(entry.getKey() + ": " + entry.getValue());
+            }
 
-            System.out.println("Fans: " + nfans);
-            System.out.println("Stadium Capacity: " + capacidadEstadio);
-            System.out.println("Ticket Sellers: " + vendedoresBolestos);
-            System.out.println("Food Sellers: " + vendedoresComida);
-            System.out.println("Bathroom Capacity: " + capacidadBaños);
-            System.out.println("Seller time attending: " + sellerTime);
+            SystemHandler.getInstance().updateVariables(inputValues);
+            SystemHandler.getInstance().instantiateAgents();
 
             frame.dispose();
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(frame, "Please enter valid numbers.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-}
 
+}
 
