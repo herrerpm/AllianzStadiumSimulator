@@ -3,6 +3,11 @@ package Agents;
 public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
 
     protected S currentState;
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     protected String name;
     protected Thread thread;
     private volatile boolean running = true;

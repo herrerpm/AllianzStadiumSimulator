@@ -2,6 +2,8 @@
 
 package Network;
 
+import Handlers.FanHandler;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -143,6 +145,25 @@ public class Client {
                 String message;
                 while (isRunning.get() && (message = in.readLine()) != null) {
                     System.out.println("Received from server: " + message);
+
+                    // Split the message by ","
+                    String[] parts = message.split(",");
+                    if (parts.length == 3) { // Ensure the message has all three components
+                        String command = parts[0].trim();
+                        String name = parts[1].trim();
+                        String zone = parts[2].trim();
+                        // Handle the parsed data
+                        System.out.println("Command: " + command);
+                        System.out.println("Name: " + name);
+                        System.out.println("Zone: " + zone);
+                        if (command.equals("create")){
+                            FanHandler.getInstance().createCustomAgent(name+" From:"+zone);
+                        }
+
+                    } else {
+                        System.err.println("Invalid message format: " + message);
+                    }
+
                     // Check if the server accepted the PIN
                     if (message.equals("PIN accepted. You are now connected.")) {
                         notifyClientConnectionEstablished();
@@ -157,6 +178,8 @@ public class Client {
             }
         }, "Client-Receiver-Thread").start();
     }
+
+
 
     /**
      * Closes the connection with the server gracefully.

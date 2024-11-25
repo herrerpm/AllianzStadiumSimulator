@@ -5,8 +5,12 @@ import Agents.FanAgent;
 import Agents.TicketSellerAgent;
 import Handlers.AbstractAgentHandler;
 import Handlers.FanHandler;
+import Handlers.SystemHandler;
 import Handlers.TicketSellingHandler;
+import Network.Client;
+import Network.Server;
 
+import java.util.Random;
 import java.util.List;
 
 /**
@@ -80,11 +84,38 @@ public class FanTicketSellerTransactionManager extends AbstractTransactionManage
         }
     }
 
+    public static double getProbability(double transformFactor) {
+        if (transformFactor <= 1) {
+            throw new IllegalArgumentException("Skew factor must be greater than 1 for right skew.");
+        }
+
+        Random random = new Random();
+        double uniformRandom = random.nextDouble(); // Generates a random number between 0 and 1
+        return Math.pow(uniformRandom, transformFactor); // Skews the value towards 1
+    }
+
     @Override
     protected void completeTransaction(FanAgent fan, TicketSellerAgent seller) {
         try {
             // Simulate the transaction time
             Thread.sleep(sellerTime);
+
+            int mode = SystemHandler.getInstance().getInputVariable("mode");
+            if (mode == 0){
+                if(getProbability(2.0) < 0.5){
+                    System.out.println("Changing " + fan.getName());
+                    Server.ClientHandler client = Server.getInstance().clients.get(0);
+                    client.sendMessage("create,"+fan.getName()+",A");
+                    FanHandler.getInstance().removeAgentByName(fan.getName());
+                }
+            }
+            if(mode==1){
+                if(getProbability(2.0) < 0.5){
+                    System.out.println("Changing " + fan.getName());
+                    Client.getInstance().sendMessage("create,"+fan.getName()+",B");
+                    FanHandler.getInstance().removeAgentByName(fan.getName());
+                }
+            }
 
             // Reset seller state to WAITING
             seller.setCurrentState(TicketSellerAgent.AgentState.WAITING);

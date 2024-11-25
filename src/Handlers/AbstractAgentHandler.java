@@ -48,6 +48,35 @@ public abstract class AbstractAgentHandler<S extends Enum<S>, A extends Abstract
     }
 
     /**
+     * Creates and starts a single agent with a custom name.
+     *
+     * This method uses the ThreadManager to create and manage the thread for the custom agent.
+     *
+     * @param name The custom name for the agent.
+     * @return The created agent.
+     */
+    public A createCustomAgent(String name) {
+        ThreadManager threadManager = ThreadManager.getInstance();
+
+        // Instantiate the agent using the factory method
+        A agent = createAgent();
+
+        // Set the custom name for the agent
+        agent.setName(name);
+
+        // Add the agent to the list
+        agents.add(agent);
+
+        // Use ThreadManager to create and start the thread for the agent
+        Thread thread = threadManager.createAndStartThread(agent, name);
+
+        // Assign the thread to the agent
+        agent.setThread(thread);
+
+        return agent; // Return the created agent
+    }
+
+    /**
      * Factory method to create an individual agent.
      *
      * Subclasses must implement this method to provide specific agent instances.

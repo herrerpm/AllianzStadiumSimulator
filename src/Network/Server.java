@@ -2,6 +2,8 @@
 
 package Network;
 
+import Handlers.FanHandler;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -9,7 +11,6 @@ import java.io.PrintWriter;
 import java.net.*;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A singleton Server class that handles client connections,
@@ -28,15 +29,15 @@ public class Server {
     // Connection PIN for client authentication
     private String connectionPin;
 
-    // Map to keep track of connected clients
-    private ConcurrentHashMap<String, ClientHandler> clients;
+    // List to keep track of connected clients
+    public List<ClientHandler> clients;
 
     // Listeners for connection events
     private final List<ConnectionListener> listeners;
 
     // Private constructor to prevent instantiation
     private Server() {
-        clients = new ConcurrentHashMap<>();
+        clients = new CopyOnWriteArrayList<>();
         listeners = new CopyOnWriteArrayList<>();
     }
 
@@ -140,7 +141,7 @@ public class Server {
                     System.out.println("Client connected: " + clientId);
 
                     ClientHandler handler = new ClientHandler(clientSocket, clientId);
-                    clients.put(clientId, handler);
+                    clients.add(handler);
                     new Thread(handler, "ClientHandler-" + clientId).start();
                 } catch (IOException e) {
                     if (isRunning) {
@@ -164,7 +165,7 @@ public class Server {
             }
 
             // Disconnect all clients
-            for (ClientHandler handler : clients.values()) {
+            for (ClientHandler handler : clients) {
                 handler.sendMessage("Server is shutting down.");
                 handler.stop();
             }
@@ -175,27 +176,12 @@ public class Server {
     }
 
     /**
-     * Sends a message to a specific client.
-     *
-     * @param clientId The unique identifier of the client.
-     * @param message  The message to send.
-     */
-    public void sendToClient(String clientId, String message) {
-        ClientHandler handler = clients.get(clientId);
-        if (handler != null) {
-            handler.sendMessage(message);
-        } else {
-            System.err.println("Client " + clientId + " not found.");
-        }
-    }
-
-    /**
      * Sends a message to all connected clients.
      *
      * @param message The message to send.
      */
     public void sendToAllClients(String message) {
-        for (ClientHandler handler : clients.values()) {
+        for (ClientHandler handler : clients) {
             handler.sendMessage(message);
         }
     }
@@ -203,7 +189,7 @@ public class Server {
     /**
      * Inner class to handle individual client connections.
      */
-    private class ClientHandler implements Runnable {
+    public class ClientHandler implements Runnable {
         private Socket clientSocket;
         private String clientId;
         private PrintWriter out;
@@ -246,82 +232,48 @@ public class Server {
             } catch (IOException e) {
                 System.err.println("Error closing resources for client " + clientId + ": " + e.getMessage());
             } finally {
-                clients.remove(clientId);
+                clients.remove(this);
             }
-        }
-
-        /**
-         * Reads a message from the client.
-         *
-         * @return The message read from the client, or null if the connection is closed.
-         * @throws IOException If an I/O error occurs while reading.
-         */
-        public String readFromClient() throws IOException {
-            return in.readLine();
         }
 
         @Override
         public void run() {
             try {
-                // First, expect the connection PIN from the client
-                String receivedPin = readFromClient();
-                if (receivedPin == null) {
-                    System.out.println("Client " + clientId + " disconnected before sending PIN.");
+                // Handle client communication here
+                String receivedPin = in.readLine();
+                if (!connectionPin.equals(receivedPin)) {
+                    sendMessage("Invalid PIN. Disconnecting.");
                     return;
                 }
-
-                System.out.println("Received PIN from " + clientId + ": " + receivedPin);
-                if (!receivedPin.equals(connectionPin)) {
-                    System.out.println("Invalid PIN from " + clientId + ". Disconnecting client.");
-                    sendMessage("Invalid Connection PIN. Disconnecting.");
-                    return;
-                }
-
-                // Send confirmation to client
-                sendMessage("PIN accepted. You are now connected.");
-
-                // Notify listeners that a connection has been established
-                notifyServerConnectionEstablished();
+                sendMessage("Connected.");
+                notifyClientConnectionEstablished();
 
                 String message;
-                while (isClientRunning && (message = readFromClient()) != null) {
+                while (isClientRunning && (message = in.readLine()) != null) {
                     System.out.println("Received from " + clientId + ": " + message);
-                    // Optionally, process the message or respond
-                    // For example, echo the message back to the client
-                    sendMessage("Echo: " + message);
+                    // Split the message by ","
+                    String[] parts = message.split(",");
+                    if (parts.length == 3) { // Ensure the message has all three components
+                        String command = parts[0].trim();
+                        String name = parts[1].trim();
+                        String zone = parts[2].trim();
+                        // Handle the parsed data
+                        System.out.println("Command: " + command);
+                        System.out.println("Name: " + name);
+                        System.out.println("Zone: " + zone);
+                        if (command.equals("create")){
+                            FanHandler.getInstance().createCustomAgent(name+" From:"+zone);
+                        }
+
+                    } else {
+                        System.err.println("Invalid message format: " + message);
+                    }
                 }
             } catch (IOException e) {
-                if (isClientRunning) {
-                    System.err.println("Error communicating with client " + clientId + ": " + e.getMessage());
-                }
+                System.err.println("Error communicating with client " + clientId + ": " + e.getMessage());
             } finally {
                 stop();
             }
         }
-    }
-
-    /**
-     * Example main method to demonstrate server usage.
-     */
-    public static void main(String[] args) {
-        Server server = Server.getInstance();
-        server.config(12345); // Set your desired port
-        server.setConnectionPin("123456"); // Set a default PIN or prompt the user
-
-        // Optionally, add a ConnectionListener here if running server standalone
-        // For GUI integration, listeners should be added from the GUI class
-
-        try {
-            server.startServer();
-        } catch (IOException e) {
-            System.err.println("Failed to start the server: " + e.getMessage());
-            return;
-        }
-
-        // Add a shutdown hook to gracefully stop the server
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("\nShutting down server...");
-            server.stopServer();
-        }));
     }
 }
