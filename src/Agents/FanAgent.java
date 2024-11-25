@@ -3,6 +3,7 @@ package Agents;
 import Managers.GraphicsManager;
 import Managers.FanFoodSellerTransactionManager;
 import Managers.FanTicketSellerTransactionManager;
+import Buffers.BathroomBuffer;
 
 import java.awt.*;
 
@@ -14,6 +15,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
         BUYING_TICKET,
         BUYING_FOOD,
         INLINE_TOBUY_FOOD,
+        BATHROOM_LINE,          // New state: waiting in line to use the bathroom
         BATHROOM,
         WATCHING_GAME,
         GENERAL_ZONE
@@ -70,15 +72,18 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
 
         // Other transitions remain the same
         stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.INLINE_TOBUY_FOOD, 0.3);
-        stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.BATHROOM, 0.2);
+        stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.BATHROOM_LINE, 0.2);
         stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.WATCHING_GAME, 0.5);
+
+        stateMachine.addTransition(AgentState.BATHROOM_LINE, AgentState.BATHROOM, 0.7);
+        stateMachine.addTransition(AgentState.BATHROOM_LINE, AgentState.GENERAL_ZONE, 0.3);
 
 
         stateMachine.addTransition(AgentState.BATHROOM, AgentState.WATCHING_GAME, 0.7);
         stateMachine.addTransition(AgentState.BATHROOM, AgentState.GENERAL_ZONE, 0.3);
 
         stateMachine.addTransition(AgentState.WATCHING_GAME, AgentState.INLINE_TOBUY_FOOD, 0.2);
-        stateMachine.addTransition(AgentState.WATCHING_GAME, AgentState.BATHROOM, 0.1);
+        stateMachine.addTransition(AgentState.WATCHING_GAME, AgentState.BATHROOM_LINE, 0.1);
         stateMachine.addTransition(AgentState.WATCHING_GAME, AgentState.GENERAL_ZONE, 0.7);
     }
 
@@ -140,8 +145,28 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
             case BUYING_FOOD:
                 break;
 
+            case BATHROOM_LINE:
+                System.out.println(name + " is waiting in line to use the bathroom.");
+                boolean entered = BathroomBuffer.getInstance().tryEnterBuffer(this);
+                if (entered) {
+                    stateMachine.nextState(); // Transition to BATHROOM
+                } else {
+                    System.out.println(name + " remains in the bathroom line.");
+                    // Optionally, you can wait for some time before retrying
+                }
+                break;
+
             case BATHROOM:
-                System.out.println(name + " is using the bathroom.");
+                try {
+                    // Simulate time spent in the bathroom
+                    System.out.println(name + " is using the bathroom.");
+                    Thread.sleep(2000); // Adjust duration as needed
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    System.out.println(name + " was interrupted while using the bathroom.");
+                } finally {
+                    BathroomBuffer.getInstance().leaveBuffer(this);
+                }
                 stateMachine.nextState();
                 break;
 

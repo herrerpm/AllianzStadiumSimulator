@@ -1,5 +1,6 @@
 package Handlers;
 
+import Buffers.BathroomBuffer;
 import Managers.FanFoodSellerTransactionManager;
 import Managers.FanTicketSellerTransactionManager;
 
@@ -72,6 +73,8 @@ public class SystemHandler {
                 foodSellingHandler,
                 foodSellerTime
         );
+
+        BathroomBuffer.getInstance(5);
 
     }
 
