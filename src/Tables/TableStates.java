@@ -185,14 +185,14 @@ public class TableStates {
                     tableModel.setValueAt(fanHandler.getAgentCountByState(FanAgent.AgentState.BUYING_FOOD), 17, 2);
 
                     // Buffers
-                    tableModel.setValueAt(SystemHandler.getInstance().getInputVariable("capacidadEstadio"), 17, 2); // Entrada de taquilla
-                    tableModel.setValueAt(SystemHandler.getInstance().getInputVariable("capacidadBaños"), 18, 2); // Baños
-                    tableModel.setValueAt(SystemHandler.getInstance().getInputVariable("SeatsCapacity"), 19, 2); // Gradas
-                    tableModel.setValueAt(SystemHandler.getInstance().getInputVariable("capacidadEstadio"), 20, 2); // En el estadio
+                    tableModel.setValueAt(SystemHandler.getInstance().getInputVariable("capacidadEstadio"), 18, 2); // Entrada de taquilla
+                    tableModel.setValueAt(SystemHandler.getInstance().getInputVariable("capacidadBaños"), 19, 2); // Baños
+                    tableModel.setValueAt(SystemHandler.getInstance().getInputVariable("SeatsCapacity"), 20, 2); // Gradas
+                    tableModel.setValueAt(ThreadManager.getInstance().getAllThreads().size(), 21, 2); // En el estadio
 
                     // Zonas críticas
-                    tableModel.setValueAt(fanHandler.getAgentCountByState(FanAgent.AgentState.BUYING_FOOD), 21, 2); // Compra de comida
-                    tableModel.setValueAt(fanHandler.getAgentCountByState(FanAgent.AgentState.BUYING_TICKET), 22, 2); // Compra de boleto
+                    tableModel.setValueAt(fanHandler.getAgentCountByState(FanAgent.AgentState.BUYING_FOOD), 22, 2); // Compra de comida
+                    tableModel.setValueAt(fanHandler.getAgentCountByState(FanAgent.AgentState.BUYING_TICKET), 23, 2); // Compra de boleto
                 });
             }
         }, 0, 1000);
