@@ -46,4 +46,10 @@ public class SellingHandler extends AbstractAgentHandler<TicketSellerAgent.Agent
         String sellerName = "Seller-" + sellerIdGenerator.getAndIncrement();
         return new TicketSellerAgent(sellerName);
     }
+
+    public void removeAgent(TicketSellerAgent seller) {
+        getAgents().remove(seller);
+        System.out.println(seller.getName() + " has been removed from the handler.");
+    }
+
 }

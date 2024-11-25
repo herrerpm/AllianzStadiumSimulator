@@ -2,8 +2,8 @@
 
 package Agents;
 
+import Handlers.SellingHandler;
 import Managers.GraphicsManager;
-
 import java.awt.*;
 
 public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentState> implements Runnable {
@@ -12,13 +12,21 @@ public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentStat
 
     public enum AgentState {
         SELLING,
-        WAITING
+        WAITING,
+        FINISHED
     }
+
+    private static final int timeWithoutAttending = 10000;
+    private long transactionTime;
+    private volatile boolean running = true;
+
 
     // New attribute to store the current zone
 
     public TicketSellerAgent(String name) {
+
         super(name, AgentState.WAITING);
+        this.transactionTime = System.currentTimeMillis();
     }
     private final static int side_lenght = 5;
 
@@ -35,15 +43,26 @@ public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentStat
     public void _run() {
         // The seller's actions are managed by the TransactionManager,
         // so this can remain empty or include additional behaviors if necessary.
-        while (true) {
+        while (running) {
             try {
                 // Sellers wait passively for transactions
                 Thread.sleep(1000); // Adjust as needed
+                if (getCurrentState() == AgentState.WAITING &&
+                        (System.currentTimeMillis() - transactionTime > timeWithoutAttending)) {
+                    System.out.println(getName() + " Seller finished work");
+                    terminate();
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 System.out.println(getName() + " interrupted.");
                 break;
             }
         }
+    }
+    private void terminate() {
+        running = false;
+        SellingHandler.getInstance().removeAgent(this);
+        setCurrentState(AgentState.FINISHED);
+        Thread.currentThread().interrupt();
     }
 }
