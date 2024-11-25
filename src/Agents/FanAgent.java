@@ -1,5 +1,6 @@
 package Agents;
 
+import Handlers.SystemHandler;
 import Managers.GraphicsManager;
 import Managers.FanFoodSellerTransactionManager;
 import Managers.FanTicketSellerTransactionManager;
@@ -26,16 +27,14 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
     }
 
     private final FanStateMachine stateMachine;
-    private final int simulationSteps;
 
     private final static int diameter = 20;
 
-    public FanAgent(String name, int simulationSteps) {
+    public FanAgent(String name) {
         // Set the initial state to ENTERING_STADIUM
         super(name, AgentState.ENTERING_STADIUM);
         this.stateMachine = new FanStateMachine(this); // Pass the agent to the state machine
         initializeTransitions();
-        this.simulationSteps = simulationSteps;
         position.x = 0;
         position.y = 0;
     }
@@ -160,7 +159,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
                 try {
                     // Simulate time spent in the bathroom
                     System.out.println(name + " is using the bathroom.");
-                    Thread.sleep(2000); // Adjust duration as needed
+                    Thread.sleep(SystemHandler.getInstance().getInputVariable("BathroomTime")); // Adjust duration as needed
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     System.out.println(name + " was interrupted while using the bathroom.");
@@ -188,18 +187,14 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
 
     @Override
     public void _run() {
-        for (int i = 1; i <= simulationSteps; i++) {
-            System.out.println("=== " + name + " Step " + i + " ===\n");
-            performAction();
-            System.out.println("----------------------------\n");
-            try {
-                Thread.sleep(3000);
-                // Trigger repaint after state change
-                GraphicsManager.getInstance().triggerRepaint();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
-            }
+        performAction();
+        System.out.println("----------------------------\n");
+        try {
+            Thread.sleep(SystemHandler.getInstance().getInputVariable("FanStateChangeTime"));
+            // Trigger repaint after state change
+            GraphicsManager.getInstance().triggerRepaint();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
         System.out.println(name + " has completed all simulation steps.");
     }

@@ -6,12 +6,13 @@ import Agents.TicketSellerAgent;
 import Handlers.FanHandler;
 import Handlers.PlayerHandler;
 import Handlers.SellingHandler;
+import Handlers.SystemHandler;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class GraphicsManager {
-    private static final int UPDATE_INTERVAL = 500; // Intervalo de actualización en milisegundos
+    private static final int UPDATE_INTERVAL = SystemHandler.getInstance().getInputVariable("UpdateInterval"); // Intervalo de actualización en milisegundos
 
     private static volatile GraphicsManager instance;
     private JFrame frame;

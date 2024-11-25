@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class FoodSellingHandler extends AbstractAgentHandler<FoodSellerAgent.AgentState, FoodSellerAgent> {
     private static FoodSellingHandler instance = null;
-    private final Random random = new Random();
     private final AtomicInteger sellerIdGenerator = new AtomicInteger(1);
 
     /**

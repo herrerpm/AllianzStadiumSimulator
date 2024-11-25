@@ -13,7 +13,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class SellingHandler extends AbstractAgentHandler<TicketSellerAgent.AgentState, TicketSellerAgent> {
     private static SellingHandler instance = null;
-    private final Random random = new Random();
     private final AtomicInteger sellerIdGenerator = new AtomicInteger(1);
 
     /**
