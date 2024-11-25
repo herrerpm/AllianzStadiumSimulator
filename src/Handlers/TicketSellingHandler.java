@@ -2,7 +2,6 @@ package Handlers;
 
 import Agents.TicketSellerAgent;
 
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -11,7 +10,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class TicketSellingHandler extends AbstractAgentHandler<TicketSellerAgent.AgentState, TicketSellerAgent> {
     private static TicketSellingHandler instance = null;
-    private final Random random = new Random();
     private final AtomicInteger sellerIdGenerator = new AtomicInteger(1);
 
     /**

@@ -3,6 +3,7 @@
 package Agents;
 
 import Handlers.SellingHandler;
+import Handlers.SystemHandler;
 import Managers.GraphicsManager;
 import java.awt.*;
 
@@ -16,7 +17,7 @@ public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentStat
         FINISHED
     }
 
-    private static final int timeWithoutAttending = 10000;
+    private static final int timeWithoutAttending = SystemHandler.getInstance().getInputVariable("TicketSellerTerminateTime");
     private long transactionTime;
     private volatile boolean running = true;
 
