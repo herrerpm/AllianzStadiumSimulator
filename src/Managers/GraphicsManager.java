@@ -11,6 +11,8 @@ import javax.swing.*;
 import java.awt.*;
 
 public class GraphicsManager {
+    private static final int UPDATE_INTERVAL = 500; // Intervalo de actualización en milisegundos
+
     private static volatile GraphicsManager instance;
     private JFrame frame;
     private JPanel drawPanel;
@@ -49,9 +51,32 @@ public class GraphicsManager {
         drawPanel.setBackground(Color.WHITE); // Optional: Set background color
         frame.add(drawPanel);
 
+        // Configura un Timer para actualizar posiciones y repintar
+        Timer timer = new Timer(UPDATE_INTERVAL, e -> {
+            updateAgentPositions();
+            triggerRepaint();
+        });
+        timer.start();
+
         // Make the JFrame visible
         frame.setVisible(true);
     }
+
+    private void updateAgentPositions() {
+        // Actualiza las posiciones de los FanAgents
+        for (FanAgent fan : FanHandler.getInstance().getAgents()) {
+            fan.updatePosition();
+        }
+        // Actualiza las posiciones de los PlayerAgents
+        for (PlayerAgent player : PlayerHandler.getInstance().getAgents()) {
+            player.updatePosition();
+        }
+        // Actualiza las posiciones de los TicketSellerAgents
+        for (TicketSellerAgent seller : SellingHandler.getInstance().getAgents()) {
+            seller.updatePosition();
+        }
+    }
+
 
     // Draws all agents by iterating over them
     private void drawGraphics(Graphics g) {

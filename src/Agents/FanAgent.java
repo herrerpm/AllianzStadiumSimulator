@@ -38,7 +38,28 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
 
     @Override
     public void draw(Graphics g) {
+        g.setColor(getColorForState());
         g.fillOval(position.x, position.y, diameter, diameter);
+    }
+    private Color getColorForState() {
+        switch (currentState) {
+            case ENTERING_STADIUM:
+                return Color.BLUE;
+            case INLINE_TOBUY:
+                return Color.ORANGE;
+            case BUYING_TICKET:
+                return Color.RED;
+            case BUYING_FOOD:
+                return Color.GREEN;
+            case BATHROOM:
+                return Color.CYAN;
+            case WATCHING_GAME:
+                return Color.MAGENTA;
+            case GENERAL_ZONE:
+                return Color.GRAY;
+            default:
+                return Color.BLACK; // Default color
+        }
     }
 
     private void initializeTransitions() {

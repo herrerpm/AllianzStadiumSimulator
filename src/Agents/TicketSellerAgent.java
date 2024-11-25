@@ -21,7 +21,12 @@ public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentStat
 
     @Override
     public void draw(Graphics g) {
+        g.setColor(getColorForState());
         g.drawRect(position.x, position.y, side_lenght, side_lenght);
+    }
+
+    private Color getColorForState() {
+        return currentState == AgentState.SELLING ? Color.GREEN : Color.LIGHT_GRAY;
     }
 
     @Override

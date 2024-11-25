@@ -21,6 +21,7 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
     private static final int size = 5;
     @Override
     public void draw(Graphics g) {
+        g.setColor(getColorForState());
         // Calcular los vértices del triángulo (equilátero)
         int[] xPoints = new int[3];
         int[] yPoints = new int[3];
@@ -32,6 +33,9 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
         }
 
         g.fillPolygon(xPoints, yPoints, 3);
+    }
+    private Color getColorForState() {
+        return currentState == AgentState.PLAYING ? Color.RED : Color.YELLOW;
     }
 
     public PlayerAgent(String name, int simulationSteps) {

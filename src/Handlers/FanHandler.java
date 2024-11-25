@@ -2,6 +2,8 @@ package Handlers;
 
 import Agents.FanAgent;
 import Managers.ThreadManager;
+
+import java.awt.*;
 import java.util.List;
 
 /**
@@ -38,7 +40,11 @@ public class FanHandler extends AbstractAgentHandler<FanAgent.AgentState, FanAge
     protected FanAgent createAgent() {
         int agentId = agents.size() + 1;
         String fanName = "Fan-" + agentId;
-        return new FanAgent(fanName, 50);
+        FanAgent fan = new FanAgent(fanName, 50);
+        fan.setPosition(new Point(100, 100)); // Punto A
+        fan.setDestination(new Point(400, 400)); // Punto B
+
+        return fan;
     }
 
 }
