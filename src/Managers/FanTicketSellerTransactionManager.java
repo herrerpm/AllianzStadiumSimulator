@@ -1,34 +1,32 @@
+// File: TransactionManager.java
 package Managers;
 
 import Agents.FanAgent;
 import Agents.TicketSellerAgent;
+import Handlers.AbstractAgentHandler;
 import Handlers.FanHandler;
-import Handlers.SellingHandler;
+import Handlers.TicketSellingHandler;
 
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * TransactionManager handles interactions between FanAgents and TicketSellerAgents.
- * It manages transactions by making fans wait for an available seller sequentially.
- * Implemented as a singleton with late configuration.
+ * It extends AbstractTransactionManager to provide specific implementation for these agent types.
  */
-public class TransactionManager {
+public class FanTicketSellerTransactionManager extends AbstractTransactionManager<FanAgent, TicketSellerAgent> {
 
     private FanHandler fanHandler;
-    private SellingHandler sellingHandler;
+    private TicketSellingHandler sellingHandler;
     private int sellerTime; // in milliseconds
-    private final BlockingQueue<TicketSellerAgent> availableSellers;
 
     // Eagerly initialized Singleton instance without parameters
-    private static final TransactionManager INSTANCE = new TransactionManager();
+    private static final FanTicketSellerTransactionManager INSTANCE = new FanTicketSellerTransactionManager();
 
     /**
      * Private constructor to prevent external instantiation.
      */
-    private TransactionManager() {
-        this.availableSellers = new LinkedBlockingQueue<>();
+    private FanTicketSellerTransactionManager() {
+        super();
     }
 
     /**
@@ -36,38 +34,28 @@ public class TransactionManager {
      *
      * @return The Singleton TransactionManager instance.
      */
-    public static TransactionManager getInstance() {
+    public static FanTicketSellerTransactionManager getInstance() {
         return INSTANCE;
     }
 
-    /**
-     * Configures the TransactionManager with necessary dependencies and initializes resources.
-     * This method should be called once after user input is handled and agents are created.
-     *
-     * @param fanHandler      The handler managing FanAgents.
-     * @param sellingHandler  The handler managing TicketSellerAgents.
-     * @param sellerTime      The time in milliseconds for a transaction.
-     */
-    public synchronized void configure(FanHandler fanHandler, SellingHandler sellingHandler, int sellerTime) {
+    @Override
+    public void configure(AbstractAgentHandler<?, FanAgent> requesterHandler,
+                          AbstractAgentHandler<?, TicketSellerAgent> responderHandler,
+                          int transactionTime) {
         if (this.fanHandler != null || this.sellingHandler != null) {
             throw new IllegalStateException("TransactionManager is already configured.");
         }
-        this.fanHandler = fanHandler;
-        this.sellingHandler = sellingHandler;
-        this.sellerTime = sellerTime;
+        this.fanHandler = (FanHandler) requesterHandler;
+        this.sellingHandler = (TicketSellingHandler) responderHandler;
+        this.sellerTime = transactionTime;
 
         List<TicketSellerAgent> sellers = sellingHandler.getAgents();
-        availableSellers.addAll(sellers);
+        availableResponders.addAll(sellers);
 
         System.out.println("TransactionManager configured with " + sellers.size() + " sellers and sellerTime = " + sellerTime + " ms.");
     }
 
-    /**
-     * Handles a transaction between a FanAgent and an available TicketSellerAgent.
-     * Fans will wait until a seller is available.
-     *
-     * @param fan The FanAgent requesting to buy a ticket.
-     */
+    @Override
     public void handleTransaction(FanAgent fan) {
         if (fanHandler == null || sellingHandler == null || sellerTime <= 0) {
             throw new IllegalStateException("TransactionManager is not configured.");
@@ -75,7 +63,7 @@ public class TransactionManager {
 
         try {
             // Take an available seller, blocking if none are available
-            TicketSellerAgent seller = availableSellers.take();
+            TicketSellerAgent seller = availableResponders.take();
             System.out.println(fan.getName() + " obtained " + seller.getName() + " for the transaction.");
 
             // Assign seller to fan
@@ -92,14 +80,8 @@ public class TransactionManager {
         }
     }
 
-    /**
-     * Completes the transaction by resetting the states of FanAgent and TicketSellerAgent.
-     * Makes the seller available again.
-     *
-     * @param fan    The FanAgent involved in the transaction.
-     * @param seller The TicketSellerAgent involved in the transaction.
-     */
-    private void completeTransaction(FanAgent fan, TicketSellerAgent seller) {
+    @Override
+    protected void completeTransaction(FanAgent fan, TicketSellerAgent seller) {
         try {
             // Simulate the transaction time
             Thread.sleep(sellerTime);
@@ -109,7 +91,7 @@ public class TransactionManager {
             System.out.println(seller.getName() + " is now waiting for the next customer.");
 
             // Make the seller available again
-            availableSellers.offer(seller);
+            availableResponders.offer(seller);
             System.out.println(seller.getName() + " is now available for new transactions.");
 
         } catch (InterruptedException e) {
@@ -128,13 +110,9 @@ public class TransactionManager {
         }
     }
 
-    /**
-     * Shuts down the TransactionManager.
-     * Currently, no resources need explicit shutdown in this implementation.
-     * If future enhancements require resource management, implement it here.
-     */
+    @Override
     public void shutdown() {
-        // No scheduler or executor to shut down in this implementation
-        // If you add resources like threads or executors in the future, handle their shutdown here
+        // Implement shutdown logic if necessary
+        // For example, interrupting any ongoing transactions or cleaning up resources
     }
 }

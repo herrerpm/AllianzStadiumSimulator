@@ -7,6 +7,7 @@ public class Main {
         SwingUtilities.invokeLater(() -> {
             GraphicsManager.getInstance().initialize(); // Initialize the GUI
             new InputWindow(); // Show the input window
+            new TableStates();
         });
     }
 }

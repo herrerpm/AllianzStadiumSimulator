@@ -1,0 +1,29 @@
+# File: .github/workflows/ci.yml
+
+name: Java CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Compile Java code
+        run: |
+          mkdir -p bin
+          find . -name "*.java" > sources.txt
+          javac -d bin @sources.txt
