@@ -19,8 +19,8 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
         GENERAL_ZONE
     }
 
-    public FanStateMachine getStateMachine() {
-        return stateMachine;
+    public void setCurrentState(FanAgent.AgentState state){
+        this.stateMachine.setCurrentState(state);
     }
 
     private final FanStateMachine stateMachine;
@@ -162,7 +162,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
     }
 
     @Override
-    public void run() {
+    public void _run() {
         for (int i = 1; i <= simulationSteps; i++) {
             System.out.println("=== " + name + " Step " + i + " ===\n");
             performAction();

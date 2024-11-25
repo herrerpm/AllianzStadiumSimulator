@@ -6,8 +6,14 @@ import java.util.Random;
 public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
 
     protected S currentState;
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     protected String name;
     protected Thread thread;
+    private volatile boolean running = true;
     protected Point position = new Point(0,0);
     private static final int RADIUS = 10; // Radio máximo del movimiento aleatorio
     private Point destination; // Punto B
@@ -98,6 +104,14 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
         this.thread = thread;
     }
 
+    protected abstract void _run();
+    @Override
+    public void run() {
+        while (running && !Thread.currentThread().isInterrupted()) {
+            _run();
+        }
+    }
     // Modified draw method to accept Graphics parameter
     public abstract void draw(Graphics g);
 }
+

@@ -5,8 +5,13 @@ import Agents.FanAgent;
 import Agents.TicketSellerAgent;
 import Handlers.AbstractAgentHandler;
 import Handlers.FanHandler;
+import Handlers.SystemHandler;
 import Handlers.TicketSellingHandler;
+import Network.Client;
+import Network.Server;
 
+import java.util.Objects;
+import java.util.Random;
 import java.util.List;
 
 /**
@@ -80,11 +85,33 @@ public class FanTicketSellerTransactionManager extends AbstractTransactionManage
         }
     }
 
+    public static boolean chance(double probability) {
+        Random random = new Random();
+        return random.nextDouble() < probability;
+    }
+
     @Override
     protected void completeTransaction(FanAgent fan, TicketSellerAgent seller) {
         try {
             // Simulate the transaction time
             Thread.sleep(sellerTime);
+
+            String mode = SystemHandler.getInstance().getSystemVariables().get("mode");
+            if (Objects.equals(mode, "server")){
+                if(chance(0.1)){
+                    System.out.println("Changing " + fan.getName());
+                    Server.ClientHandler client = Server.getInstance().clients.get(0);
+                    client.sendMessage("create,"+fan.getName()+",A");
+                    FanHandler.getInstance().removeAgentByName(fan.getName());
+                }
+            }
+            if(Objects.equals(mode, "client")){
+                if(chance(0.1)){
+                    System.out.println("Changing " + fan.getName());
+                    Client.getInstance().sendMessage("create,"+fan.getName()+",B");
+                    FanHandler.getInstance().removeAgentByName(fan.getName());
+                }
+            }
 
             // Reset seller state to WAITING
             seller.setCurrentState(TicketSellerAgent.AgentState.WAITING);
@@ -99,7 +126,7 @@ public class FanTicketSellerTransactionManager extends AbstractTransactionManage
             System.out.println("TransactionManager interrupted while completing transaction for " + fan.getName());
         } finally {
             // Update fan state to GENERAL_ZONE
-            fan.getStateMachine().setCurrentState(FanAgent.AgentState.GENERAL_ZONE);
+            fan.setCurrentState(FanAgent.AgentState.GENERAL_ZONE);
             System.out.println(fan.getName() + " has moved to state: " + fan.getCurrentState());
 
             // Notify the fan that the transaction is complete

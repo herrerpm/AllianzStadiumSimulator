@@ -96,7 +96,7 @@ public class FanFoodSellerTransactionManager extends AbstractTransactionManager<
             System.out.println("TransactionManager interrupted while completing transaction for " + fan.getName());
         } finally {
             // Update fan state to GENERAL_ZONE
-            fan.getStateMachine().setCurrentState(FanAgent.AgentState.GENERAL_ZONE);
+            fan.setCurrentState(FanAgent.AgentState.GENERAL_ZONE);
             System.out.println(fan.getName() + " has moved to state: " + fan.getCurrentState());
 
             // Notify the fan that the transaction is complete

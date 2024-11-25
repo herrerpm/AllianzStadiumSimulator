@@ -1,3 +1,5 @@
+// File: src/Agents/TicketSellerAgent.java
+
 package Agents;
 
 import Managers.GraphicsManager;
@@ -13,10 +15,11 @@ public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentStat
         WAITING
     }
 
+    // New attribute to store the current zone
+
     public TicketSellerAgent(String name) {
         super(name, AgentState.WAITING);
     }
-
     private final static int side_lenght = 5;
 
     @Override
@@ -28,14 +31,13 @@ public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentStat
     private Color getColorForState() {
         return currentState == AgentState.SELLING ? Color.GREEN : Color.LIGHT_GRAY;
     }
-
     @Override
-    public void run() {
-        // Since the seller's actions are managed by the TransactionManager,
-        // the run method can be empty or manage additional behaviors if necessary.
+    public void _run() {
+        // The seller's actions are managed by the TransactionManager,
+        // so this can remain empty or include additional behaviors if necessary.
         while (true) {
-            // The seller waits passively for transactions initiated by the TransactionManager
             try {
+                // Sellers wait passively for transactions
                 Thread.sleep(1000); // Adjust as needed
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();

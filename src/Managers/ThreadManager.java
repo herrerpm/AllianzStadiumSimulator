@@ -6,7 +6,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * ThreadManager is a singleton class responsible for managing threads.
- * It provides functionalities to create, start, and retrieve threads based on their states.
+ * It provides functionalities to create, start, retrieve, and remove threads based on their states.
  */
 public class ThreadManager {
 
@@ -122,5 +122,46 @@ public class ThreadManager {
         for (Thread thread : threads) {
             thread.interrupt();
         }
+    }
+
+    /**
+     * Removes a specific thread from the managed list.
+     *
+     * This method attempts to gracefully stop the thread by interrupting it
+     * and then removes it from the list if it exists.
+     *
+     * @param thread The Thread instance to remove.
+     * @return true if the thread was found and removed; false otherwise.
+     */
+    public boolean removeThread(Thread thread) {
+        if (thread == null) {
+            return false;
+        }
+
+        boolean removed = false;
+
+        if (threads.contains(thread)) {
+            // Attempt to gracefully stop the thread
+            thread.interrupt();
+
+            try {
+                // Optionally, wait for the thread to terminate
+                thread.join(1000); // Wait for 1 second
+            } catch (InterruptedException e) {
+                System.out.println("ThreadManager interrupted while waiting for thread to terminate.");
+                Thread.currentThread().interrupt(); // Restore interrupted status
+            }
+
+            // Check if the thread has terminated
+            if (thread.getState() == Thread.State.TERMINATED) {
+                removed = threads.remove(thread);
+            } else {
+                System.out.println("Thread " + thread.getName() + " did not terminate in the expected time.");
+                // Optionally, decide whether to remove it anyway or keep it
+                // For safety, it's better to keep it until it terminates
+            }
+        }
+
+        return removed;
     }
 }
