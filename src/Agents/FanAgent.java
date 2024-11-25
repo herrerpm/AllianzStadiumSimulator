@@ -16,8 +16,8 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
         GENERAL_ZONE
     }
 
-    public FanStateMachine getStateMachine() {
-        return stateMachine;
+    public void setCurrentState(FanAgent.AgentState state){
+        this.stateMachine.setCurrentState(state);
     }
 
     private final FanStateMachine stateMachine;

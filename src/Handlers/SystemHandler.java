@@ -15,6 +15,7 @@ public class SystemHandler {
 
 
     private final Map<String, Integer> inputVariables = new HashMap<>();
+    private final Map<String, String> systemVariables = new HashMap<>();
     private SystemHandler() {
         inputVariables.put("nfans", 20);
         inputVariables.put("capacidadEstadio", 100);
@@ -34,6 +35,9 @@ public class SystemHandler {
 
     public Map<String, Integer> getInputVariables(){
         return inputVariables;
+    }
+    public Map<String, String> getSystemVariables(){
+        return systemVariables;
     }
 
     public int getInputVariable(String key) {

@@ -10,6 +10,7 @@ import Handlers.TicketSellingHandler;
 import Network.Client;
 import Network.Server;
 
+import java.util.Objects;
 import java.util.Random;
 import java.util.List;
 
@@ -84,14 +85,9 @@ public class FanTicketSellerTransactionManager extends AbstractTransactionManage
         }
     }
 
-    public static double getProbability(double transformFactor) {
-        if (transformFactor <= 1) {
-            throw new IllegalArgumentException("Skew factor must be greater than 1 for right skew.");
-        }
-
+    public static boolean chance(double probability) {
         Random random = new Random();
-        double uniformRandom = random.nextDouble(); // Generates a random number between 0 and 1
-        return Math.pow(uniformRandom, transformFactor); // Skews the value towards 1
+        return random.nextDouble() < probability;
     }
 
     @Override
@@ -100,17 +96,17 @@ public class FanTicketSellerTransactionManager extends AbstractTransactionManage
             // Simulate the transaction time
             Thread.sleep(sellerTime);
 
-            int mode = SystemHandler.getInstance().getInputVariable("mode");
-            if (mode == 0){
-                if(getProbability(2.0) < 0.5){
+            String mode = SystemHandler.getInstance().getSystemVariables().get("mode");
+            if (Objects.equals(mode, "server")){
+                if(chance(0.1)){
                     System.out.println("Changing " + fan.getName());
                     Server.ClientHandler client = Server.getInstance().clients.get(0);
                     client.sendMessage("create,"+fan.getName()+",A");
                     FanHandler.getInstance().removeAgentByName(fan.getName());
                 }
             }
-            if(mode==1){
-                if(getProbability(2.0) < 0.5){
+            if(Objects.equals(mode, "client")){
+                if(chance(0.1)){
                     System.out.println("Changing " + fan.getName());
                     Client.getInstance().sendMessage("create,"+fan.getName()+",B");
                     FanHandler.getInstance().removeAgentByName(fan.getName());
@@ -130,7 +126,7 @@ public class FanTicketSellerTransactionManager extends AbstractTransactionManage
             System.out.println("TransactionManager interrupted while completing transaction for " + fan.getName());
         } finally {
             // Update fan state to GENERAL_ZONE
-            fan.getStateMachine().setCurrentState(FanAgent.AgentState.GENERAL_ZONE);
+            fan.setCurrentState(FanAgent.AgentState.GENERAL_ZONE);
             System.out.println(fan.getName() + " has moved to state: " + fan.getCurrentState());
 
             // Notify the fan that the transaction is complete
