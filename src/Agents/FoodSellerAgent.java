@@ -1,32 +1,21 @@
 package Agents;
 
-import Managers.GraphicsManager;
-
 import java.awt.*;
 
-public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentState> implements Runnable {
+public class FoodSellerAgent  extends AbstractAgent<FoodSellerAgent.AgentState> implements Runnable{
 
+    @Override
+    public void draw(Graphics g) {
 
+    }
 
-    public enum AgentState {
+    public enum AgentState{
         SELLING,
         WAITING
     }
 
-    public TicketSellerAgent(String name) {
+    public FoodSellerAgent(String name) {
         super(name, AgentState.WAITING);
-    }
-
-    private final static int side_lenght = 5;
-
-    @Override
-    public void draw(Graphics g) {
-        g.setColor(getColorForState());
-        g.drawRect(position.x, position.y, side_lenght, side_lenght);
-    }
-
-    private Color getColorForState() {
-        return currentState == AgentState.SELLING ? Color.GREEN : Color.LIGHT_GRAY;
     }
 
     @Override
