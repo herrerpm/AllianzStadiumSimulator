@@ -2,6 +2,7 @@
 public class Main {
     public static void main(String[] args) {
 //        new InputWindow();
-        new SimulationWindow();
+        new EntranceA();
+        new EntranceB();
     }
 }
