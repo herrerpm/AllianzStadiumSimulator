@@ -129,7 +129,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
     }
 
     @Override
-    public void run() {
+    public void _run() {
         for (int i = 1; i <= simulationSteps; i++) {
             System.out.println("=== " + name + " Step " + i + " ===\n");
             performAction();

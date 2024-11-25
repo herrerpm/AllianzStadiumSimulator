@@ -1,3 +1,5 @@
+// File: src/Agents/TicketSellerAgent.java
+
 package Agents;
 
 public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentState> implements Runnable {
@@ -7,17 +9,28 @@ public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentStat
         WAITING
     }
 
+    // New attribute to store the current zone
+    private Zone currentZone;
+
     public TicketSellerAgent(String name) {
         super(name, AgentState.WAITING);
     }
 
+    public Zone getCurrentZone() {
+        return currentZone;
+    }
+
+    public void setCurrentZone(Zone zone) {
+        this.currentZone = zone;
+    }
+
     @Override
-    public void run() {
-        // Since the seller's actions are managed by the TransactionManager,
-        // the run method can be empty or manage additional behaviors if necessary.
+    public void _run() {
+        // The seller's actions are managed by the TransactionManager,
+        // so this can remain empty or include additional behaviors if necessary.
         while (true) {
-            // The seller waits passively for transactions initiated by the TransactionManager
             try {
+                // Sellers wait passively for transactions
                 Thread.sleep(1000); // Adjust as needed
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();

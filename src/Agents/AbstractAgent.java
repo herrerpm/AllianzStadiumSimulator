@@ -5,7 +5,7 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
     protected S currentState;
     protected String name;
     protected Thread thread;
-
+    private volatile boolean running = true;
     public AbstractAgent(String name, S initialState) {
         this.name = name;
         this.currentState = initialState;
@@ -29,5 +29,13 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
 
     public void setThread(Thread thread) {
         this.thread = thread;
+    }
+
+    protected abstract void _run();
+    @Override
+    public void run() {
+        while (running && !Thread.currentThread().isInterrupted()) {
+            _run();
+        }
     }
 }
