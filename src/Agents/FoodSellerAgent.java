@@ -1,6 +1,13 @@
 package Agents;
 
+import java.awt.*;
+
 public class FoodSellerAgent  extends AbstractAgent<FoodSellerAgent.AgentState> implements Runnable{
+
+    @Override
+    public void draw(Graphics g) {
+
+    }
 
     public enum AgentState{
         SELLING,

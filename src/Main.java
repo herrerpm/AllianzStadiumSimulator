@@ -1,8 +1,13 @@
+import Managers.GraphicsManager;
+
+import javax.swing.*;
 
 public class Main {
     public static void main(String[] args) {
-
-        new InputWindow();
-        new TableStates();
+        SwingUtilities.invokeLater(() -> {
+            GraphicsManager.getInstance().initialize(); // Initialize the GUI
+            new InputWindow(); // Show the input window
+            new TableStates();
+        });
     }
 }
