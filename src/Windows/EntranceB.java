@@ -1,12 +1,14 @@
+package Windows;
+
 import javax.swing.*;
 
-public class EntranceA extends JFrame {
-    public EntranceA(){
-        super("Entrance A");
+public class EntranceB extends JFrame {
+    public EntranceB() {
+        super("Entrance B");
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setSize(800,600);
-        EntranceAPanel panel = new EntranceAPanel();
+        EntranceBPanel panel = new EntranceBPanel();
         add(panel);
         setVisible(true);
     }

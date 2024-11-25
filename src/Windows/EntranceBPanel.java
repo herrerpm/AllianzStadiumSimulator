@@ -1,3 +1,5 @@
+package Windows;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -35,5 +37,20 @@ public class EntranceBPanel extends JPanel {
         g.fillRect(0,100,500,200);
         g.setColor(Color.BLACK);
         g.drawString("Zona General", 3, 115);
+        // Gradas
+        g.setColor(Color.PINK);
+        g.fillRect(0,250,800,325);
+        g.setColor(Color.BLACK);
+        g.drawString("Gradas",3,265);
+        // Cancha
+        g.setColor(Color.GREEN);
+        g.fillRect(100,300,600,250);
+        g.setColor(Color.BLACK);
+        g.drawString("Cancha", 103, 315);
+        // Banca
+        g.setColor(Color.WHITE);
+        g.fillRect(150,550,500,25);
+        g.setColor(Color.BLACK);
+        g.drawString("Banca",153, 565);
     }
 }
