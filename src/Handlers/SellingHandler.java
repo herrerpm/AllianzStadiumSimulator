@@ -13,7 +13,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class SellingHandler extends AbstractAgentHandler<TicketSellerAgent.AgentState, TicketSellerAgent> {
     private static SellingHandler instance = null;
-    private final Random random = new Random();
     private final AtomicInteger sellerIdGenerator = new AtomicInteger(1);
 
     /**
@@ -46,4 +45,10 @@ public class SellingHandler extends AbstractAgentHandler<TicketSellerAgent.Agent
         String sellerName = "Seller-" + sellerIdGenerator.getAndIncrement();
         return new TicketSellerAgent(sellerName);
     }
+
+    public void removeAgent(TicketSellerAgent seller) {
+        getAgents().remove(seller);
+        System.out.println(seller.getName() + " has been removed from the handler.");
+    }
+
 }

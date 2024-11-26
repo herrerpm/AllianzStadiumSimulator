@@ -4,10 +4,7 @@ import Agents.FanAgent;
 import Agents.FoodSellerAgent;
 import Agents.PlayerAgent;
 import Agents.TicketSellerAgent;
-import Handlers.FanHandler;
-import Handlers.FoodSellingHandler;
-import Handlers.PlayerHandler;
-import Handlers.TicketSellingHandler;
+import Handlers.*;
 import Managers.ThreadManager;
 import Tables.AgentTable;
 import Tables.AgentTableFactory;
@@ -86,14 +83,14 @@ public class TableStates {
                 {"Estados de Aficionado", "Threads viendo partido", fanHandler.getAgentCountByState(FanAgent.AgentState.WATCHING_GAME)},
                 {"Estados de Aficionado", "Threads comprando comida", fanHandler.getAgentCountByState(FanAgent.AgentState.BUYING_FOOD)},
                 // Buffers
-                {"Buffers", "Entrada de taquilla", 0},
-                {"Buffers", "Baños", 0},
-                {"Buffers", "Gradas", 0},
-                {"Buffers", "En el estadio", 0},
+//                TODO: REVISAR
+                {"Buffers", "Entrada de taquilla", SystemHandler.getInstance().getInputVariable("capacidadEstadio")},
+                {"Buffers", "Baños", SystemHandler.getInstance().getInputVariable("capacidadBaños")},
+                {"Buffers", "Gradas", SystemHandler.getInstance().getInputVariable("SeatsCapacity")},
+                {"Buffers", "En el estadio", SystemHandler.getInstance().getInputVariable("capacidadEstadio")},
                 // Zonas criticas
-                {"Zonas Críticas", "Compra de comida", 0},
-                {"Zonas Críticas", "Compra de boleto", 0},
-                {"Zonas Críticas", "Registro de boleto", 0},
+                {"Zonas Críticas", "Compra de comida", fanHandler.getAgentCountByState(FanAgent.AgentState.BUYING_FOOD)},
+                {"Zonas Críticas", "Compra de boleto", fanHandler.getAgentCountByState(FanAgent.AgentState.BUYING_TICKET)},
         };
 
         // Initialize the main table model
@@ -188,15 +185,14 @@ public class TableStates {
                     tableModel.setValueAt(fanHandler.getAgentCountByState(FanAgent.AgentState.BUYING_FOOD), 17, 2);
 
                     // Buffers
-                    tableModel.setValueAt(0, 17, 2); // Entrada de taquilla
-                    tableModel.setValueAt(0, 18, 2); // Baños
-                    tableModel.setValueAt(0, 19, 2); // Gradas
-                    tableModel.setValueAt(0, 20, 2); // En el estadio
+                    tableModel.setValueAt(SystemHandler.getInstance().getInputVariable("capacidadEstadio"), 17, 2); // Entrada de taquilla
+                    tableModel.setValueAt(SystemHandler.getInstance().getInputVariable("capacidadBaños"), 18, 2); // Baños
+                    tableModel.setValueAt(SystemHandler.getInstance().getInputVariable("SeatsCapacity"), 19, 2); // Gradas
+                    tableModel.setValueAt(SystemHandler.getInstance().getInputVariable("capacidadEstadio"), 20, 2); // En el estadio
 
                     // Zonas críticas
-                    tableModel.setValueAt(0, 21, 2); // Compra de comida
-                    tableModel.setValueAt(0, 22, 2); // Compra de boleto
-                    tableModel.setValueAt(0, 23, 2); // Registro de boleto
+                    tableModel.setValueAt(fanHandler.getAgentCountByState(FanAgent.AgentState.BUYING_FOOD), 21, 2); // Compra de comida
+                    tableModel.setValueAt(fanHandler.getAgentCountByState(FanAgent.AgentState.BUYING_TICKET), 22, 2); // Compra de boleto
                 });
             }
         }, 0, 1000);

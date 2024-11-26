@@ -1,6 +1,6 @@
 package Agents;
 
-import Managers.GraphicsManager;
+import Handlers.SystemHandler;
 
 import java.awt.*;
 
@@ -16,7 +16,6 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
     }
 
     private final PlayerStateMachine stateMachine;
-    private final int simulationSteps;
 
     private static final int size = 5;
     @Override
@@ -38,12 +37,11 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
         return currentState == AgentState.PLAYING ? Color.RED : Color.YELLOW;
     }
 
-    public PlayerAgent(String name, int simulationSteps) {
+    public PlayerAgent(String name) {
         // Set the initial state to ENTERING_STADIUM
         super(name, AgentState.ON_BENCH);
         this.stateMachine = new PlayerStateMachine(this); // Pass the agent to the state machine
         initializeTransitions();
-        this.simulationSteps = simulationSteps;
         position.x = 0;
         position.y = 0;
     }
@@ -76,17 +74,13 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
 
     @Override
     public void _run() {
-        for (int i = 1; i <= simulationSteps; i++) {
-            System.out.println("=== " + name + " Step " + i + " ===\n");
             performAction();
             System.out.println("----------------------------\n");
             try {
-                Thread.sleep(3000);
+                Thread.sleep(SystemHandler.getInstance().getInputVariable("PlayerStateChangeTime"));
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                break;
             }
-        }
         System.out.println(name + " has completed all simulation steps.");
     }
 

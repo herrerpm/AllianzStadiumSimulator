@@ -1,5 +1,7 @@
 package Agents;
 
+import Handlers.SystemHandler;
+
 import java.awt.*;
 import java.util.Random;
 import Utils.ZoneCoordinates;
@@ -19,8 +21,9 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
     private static final int RADIUS = 10; // Radio máximo del movimiento aleatorio
     private Point destination; // Punto B
     private boolean reachedDestination = false; // Estado para verificar si llegó al destino
-    private int speed = 5;
     private Rectangle currentZone; // Current zone where the Thread is at
+    private int speed = SystemHandler.getInstance().getInputVariable("AgentSpeed");
+
 
 
     public void setDestination(Point destination) {
