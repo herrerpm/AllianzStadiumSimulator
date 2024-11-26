@@ -3,15 +3,15 @@ package Windows;
 import javax.swing.*;
 import java.awt.*;
 
-public class EntranceAPanel extends JPanel {
+public class EntrancePanel extends JPanel {
     @Override
     public void paint(Graphics g) {
         super.paintComponent(g);
-        // Entrance A
+        // Entrance
         g.setColor(Color.YELLOW);
         g.fillRect(0, 0, 300, 250);
         g.setColor(Color.BLACK);
-        g.drawString("Entrada A",3,15);
+        g.drawString("Entrada",3,15);
         // Taquillero
         g.setColor(Color.CYAN);
         g.fillRect(0, 150, 150, 150);
