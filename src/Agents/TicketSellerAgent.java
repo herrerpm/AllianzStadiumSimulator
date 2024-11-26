@@ -17,6 +17,7 @@ public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentStat
         FINISHED
     }
 
+
     private static final long timeWithoutAttending = SystemHandler.getInstance().getInputVariable("TicketSellerTerminateTime");
     private long transactionTime;
     private volatile boolean running = true;

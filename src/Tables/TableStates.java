@@ -1,5 +1,10 @@
-package Tables;
 
+package Tables;// File: Tables.TableStates.java
+
+import Agents.FanAgent;
+import Agents.FoodSellerAgent;
+import Agents.PlayerAgent;
+import Agents.TicketSellerAgent;
 import Handlers.*;
 import Managers.ThreadManager;
 import Agents.*;
@@ -117,6 +122,7 @@ public class TableStates {
         // Create a timer to update the table periodically (every second)
         Timer timer = new Timer(1000, e -> updateTableData());
         timer.start();
+
     }
 
     private void updateTableData() {
