@@ -1,5 +1,6 @@
 package Agents;
 
+import Buffers.GameBuffer;
 import Handlers.SystemHandler;
 
 import java.awt.*;
@@ -52,17 +53,54 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
         stateMachine.addTransition(AgentState.PLAYING, AgentState.ON_BENCH, 0.7);
     }
 
+    public void enterField() {
+        GameBuffer buffer = GameBuffer.getInstance();
+        try {
+            buffer.enterBuffer(this);
+            System.out.println(name + " is attempting to enter the field.");
+            goToField();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.out.println(name + " was interrupted while trying to enter the field.");
+        }
+    }
+
+    public void leaveField() {
+        GameBuffer buffer = GameBuffer.getInstance();
+        buffer.leaveBuffer(this);
+        goToBench();
+        System.out.println(name + " has left the field.");
+    }
+
     public void performAction() {
         PlayerAgent.AgentState currentState = stateMachine.getCurrentState();
         System.out.println(name + " Current State: " + currentState);
         switch (currentState) {
             case PLAYING:
-                System.out.println(name + " is on field playing.");
+                System.out.println(name + " is playing on the field.");
+                // Simulate playing duration
+                try {
+                    Thread.sleep(SystemHandler.getInstance().getInputVariable("PlayingTime")); // e.g., "PlayingTime" in milliseconds
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    System.out.println(name + " was interrupted while playing.");
+                }
+                // After playing, leave the field
+                leaveField();
                 stateMachine.nextState();
                 break;
 
             case ON_BENCH:
-                System.out.println(name + " is subbed off, now is on the bench.");
+                System.out.println(name + " is on the bench.");
+                // Simulate bench duration
+                try {
+                    Thread.sleep(SystemHandler.getInstance().getInputVariable("BenchTime")); // e.g., "BenchTime" in milliseconds
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    System.out.println(name + " was interrupted while on the bench.");
+                }
+                // After benching, attempt to enter the field
+                enterField();
                 stateMachine.nextState();
                 break;
 

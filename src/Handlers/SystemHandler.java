@@ -34,6 +34,7 @@ public class SystemHandler {
         inputVariables.put("UpdateInterval", 500);
         inputVariables.put("SeatsCapacity", 0);
         inputVariables.put("RegisterTime", 1000);
+        inputVariables.put("ExitTime", 1000);
     }
     public static SystemHandler getInstance(){
         if(instance == null){

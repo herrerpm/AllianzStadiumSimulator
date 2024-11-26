@@ -2,6 +2,7 @@ package Network;
 
 import Agents.FanAgent;
 import Handlers.FanHandler;
+import Handlers.SystemHandler;
 
 public class MessageHandler {
     public static void handleMessage(String message) {
@@ -14,9 +15,15 @@ public class MessageHandler {
             System.out.println("Name: " + name);
             System.out.println("Zone: " + zone);
             if (command.equals("create")) {
-                FanHandler.getInstance()
-                        .createCustomAgent(name + " From: " + zone)
-                        .setCurrentState(FanAgent.AgentState.REGISTER);
+                FanAgent fan = FanHandler.getInstance()
+                        .createCustomAgent(name + " From: " + zone);
+                        fan.setCurrentState(FanAgent.AgentState.REGISTER);
+                try {
+                    fan.goToRegisterZone();
+                    Thread.sleep(SystemHandler.getInstance().getInputVariable("RegisterTime"));
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }

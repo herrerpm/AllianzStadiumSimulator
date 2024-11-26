@@ -15,7 +15,6 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
 
     public enum AgentState {
         ENTERING_STADIUM,
-
         REGISTER,
         INLINE_TOBUY,
         BUYING_TICKET,
@@ -212,11 +211,18 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
                 break;
 
             case REGISTER:
-                goToRegisterZone();
+//                goToRegisterZone();
+                stateMachine.nextState();
                 break;
 
             case EXIT:
                 System.out.println(name + " Exit the stadium");
+                goToEntrance();
+                try {
+                    Thread.sleep(SystemHandler.getInstance().getInputVariable("ExitTime"));
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 terminate();
                 break;
 
