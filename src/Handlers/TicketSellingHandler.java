@@ -1,7 +1,9 @@
 package Handlers;
 
+import Agents.PlayerAgent;
 import Agents.TicketSellerAgent;
 
+import java.awt.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -30,6 +32,17 @@ public class TicketSellingHandler extends AbstractAgentHandler<TicketSellerAgent
             instance = new TicketSellingHandler();
         }
         return instance;
+    }
+
+    public Color getAgentColorForState(TicketSellerAgent.AgentState state) {
+        switch (state) {
+            case SELLING:
+                return Color.GREEN;
+            case WAITING:
+                return Color.LIGHT_GRAY;
+            default:
+                return Color.BLACK;
+        }
     }
 
     /**

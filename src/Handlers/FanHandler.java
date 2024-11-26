@@ -44,6 +44,33 @@ public class FanHandler extends AbstractAgentHandler<FanAgent.AgentState, FanAge
         FanAgent fan = new FanAgent(fanName);
         return fan;
     }
+    public Color getAgentColorForState(FanAgent.AgentState state) {
+        switch (state) {
+            case ENTERING_STADIUM:
+                return Color.BLUE;
+            case REGISTER:
+                return Color.PINK;
+            case INLINE_TOBUY:
+                return Color.BLUE;
+            case BUYING_TICKET:
+                return Color.RED;
+            case BUYING_FOOD:
+                return Color.GREEN;
+            case INLINE_TOBUY_FOOD:
+                return Color.YELLOW;
+            case BATHROOM_LINE:
+                return Color.MAGENTA;
+            case BATHROOM:
+                return Color.CYAN;
+            case WATCHING_GAME:
+                return Color.LIGHT_GRAY;
+            case GENERAL_ZONE:
+                return Color.GRAY;
+            default:
+                return Color.BLACK; // Default color
+        }
+    }
+
 
     public void removeAgent(FanAgent fan) {
         getAgents().remove(fan);

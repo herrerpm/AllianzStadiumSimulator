@@ -54,20 +54,26 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
         switch (currentState) {
             case ENTERING_STADIUM:
                 return Color.BLUE;
+            case REGISTER:
+                return Color.PINK;
             case INLINE_TOBUY:
-                return Color.ORANGE;
+                return Color.BLUE;
             case BUYING_TICKET:
                 return Color.RED;
             case BUYING_FOOD:
                 return Color.GREEN;
+            case INLINE_TOBUY_FOOD:
+                return Color.YELLOW;
+            case BATHROOM_LINE:
+                return Color.MAGENTA;
             case BATHROOM:
                 return Color.CYAN;
             case WATCHING_GAME:
-                return Color.MAGENTA;
+                return Color.LIGHT_GRAY;
             case GENERAL_ZONE:
                 return Color.GRAY;
             default:
-                return Color.BLACK; // Default color
+                return Color.BLACK;
         }
     }
 
@@ -81,7 +87,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
         stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.BATHROOM_LINE, 0.2);
         stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.WATCHING_GAME, 0.4);
         stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.EXIT, 0.03);
-      
+
         stateMachine.addTransition(AgentState.BATHROOM_LINE, AgentState.BATHROOM, 0.7);
         stateMachine.addTransition(AgentState.BATHROOM_LINE, AgentState.GENERAL_ZONE, 0.3);
 
@@ -206,6 +212,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
                 break;
 
             case REGISTER:
+                goToRegisterZone();
                 break;
 
             case EXIT:
