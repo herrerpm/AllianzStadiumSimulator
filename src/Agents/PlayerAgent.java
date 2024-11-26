@@ -53,12 +53,11 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
     }
 
     private void initializeTransitions() {
-        stateMachine.addTransition(PlayerAgent.AgentState.ON_BENCH, AgentState.PLAYING, 1.0);
-        stateMachine.addTransition(AgentState.PLAYING, AgentState.ON_BENCH, 0.7);
+        stateMachine.addTransition(PlayerAgent.AgentState.ON_BENCH, AgentState.PLAYING, 0.95);
+        stateMachine.addTransition(AgentState.PLAYING, AgentState.ON_BENCH, 0.05);
     }
 
     public void performAction() {
-        PlayerAgent.AgentState currentState = stateMachine.getCurrentState();
         System.out.println(name + " Current State: " + currentState);
         switch (currentState) {
             case PLAYING:
