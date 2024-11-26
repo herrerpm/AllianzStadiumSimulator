@@ -127,6 +127,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
                 }
                 try{
                     System.out.println(name + " is in the registering.");
+                    goToRegisterZone();
                     Thread.sleep(SystemHandler.getInstance().getInputVariable("RegisterTime")); // Adjust duration as needed
 
                 } catch (InterruptedException e) {
