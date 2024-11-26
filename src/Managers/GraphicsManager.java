@@ -34,13 +34,7 @@ public class GraphicsManager {
     }
 
     // Initialize the GUI components
-    public void initialize() {
-        // Create and configure the JFrame
-        frame = new JFrame("Visualización de Estados de Threads");
-        frame.setSize(800, 600);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
-
+    public JPanel initialize() {
         // Create and configure the drawing panel
         drawPanel = new JPanel() {
             @Override
@@ -49,8 +43,7 @@ public class GraphicsManager {
                 drawGraphics(g);
             }
         };
-        drawPanel.setBackground(Color.WHITE); // Optional: Set background color
-        frame.add(drawPanel);
+        drawPanel.setOpaque(false); // Optional: Set background color
 
         // Configura un Timer para actualizar posiciones y repintar
         Timer timer = new Timer(UPDATE_INTERVAL, e -> {
@@ -58,9 +51,7 @@ public class GraphicsManager {
             triggerRepaint();
         });
         timer.start();
-
-        // Make the JFrame visible
-        frame.setVisible(true);
+        return drawPanel;
     }
 
     private void updateAgentPositions() {

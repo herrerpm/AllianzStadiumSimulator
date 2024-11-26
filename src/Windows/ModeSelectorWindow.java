@@ -15,6 +15,7 @@ import Network.Client;
 import Network.ConnectionListener;
 import Network.Server;
 import Tables.TableStates;
+import Managers.GraphicsManager;
 
 /**
  * ModeSelectorWindow is responsible for allowing the user to select the mode of operation:
@@ -238,6 +239,7 @@ public class ModeSelectorWindow implements ConnectionListener {
         // Initialize the local simulation
         new InputWindow(); // Prompt for simulation inputs
         new TableStates();  // Initialize the state tables
+        new Entrance("UI", GraphicsManager.getInstance().initialize());
         // Add zone A to the server
         SystemHandler.getInstance().getInputVariables().put("Zone", 0);
         parentFrame.dispose(); // Close the mode selector window
@@ -280,6 +282,9 @@ public class ModeSelectorWindow implements ConnectionListener {
             // Launch main simulation windows
             new InputWindow();  // Prompt for simulation inputs
             new TableStates();   // Initialize the state tables
+            JPanel threads = GraphicsManager.getInstance().initialize();
+            new Entrance("Entrance A", threads);
+            GraphicsManager.getInstance().triggerRepaint();
             // Add zone B to the server
             SystemHandler.getInstance().getInputVariables().put("Zone", 1);
             // Close the mode selector window

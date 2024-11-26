@@ -4,6 +4,7 @@ import Handlers.SystemHandler;
 
 import java.awt.*;
 import java.util.Random;
+import Utils.ZoneCoordinates;
 
 public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
 
@@ -20,7 +21,9 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
     private static final int RADIUS = 10; // Radio máximo del movimiento aleatorio
     private Point destination; // Punto B
     private boolean reachedDestination = false; // Estado para verificar si llegó al destino
+    private Rectangle currentZone; // Current zone where the Thread is at
     private int speed = SystemHandler.getInstance().getInputVariable("AgentSpeed");
+
 
 
     public void setDestination(Point destination) {
@@ -31,7 +34,7 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
     public void updatePosition() {
         if (!reachedDestination && destination != null) {
             moveTowardsDestination();
-        } else {
+        } else if(currentZone != null){
             updatePositionRandomly();
         }
     }
@@ -64,15 +67,56 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
             int dx = random.nextInt(RADIUS * 2 + 1) - RADIUS; // Desplazamiento aleatorio en X
             int dy = random.nextInt(RADIUS * 2 + 1) - RADIUS; // Desplazamiento aleatorio en Y
             newPos = new Point(position.x + dx, position.y + dy);
-        } while (!isWithinBounds(newPos)); // Asegura que la nueva posición esté dentro de los límites
+        } while (currentZone != null && !ZoneCoordinates.isWithinZone(currentZone, newPos)); // Asegura que la nueva posición esté dentro de los límites
 
         this.position = newPos;
     }
 
-    private boolean isWithinBounds(Point pos) {
-        // Ajusta estos valores según el tamaño de la ventana o panel de dibujo
-        return pos.x >= 0 && pos.x <= 800 && pos.y >= 0 && pos.y <= 600;
+    public void goToFoodZone(){
+        setDestination(ZoneCoordinates.FOOD_ZONE.getLocation());
+        currentZone = ZoneCoordinates.FOOD_ZONE;
     }
+
+    public void goToEntrance(){
+        setDestination(ZoneCoordinates.ENTRANCE_ZONE.getLocation());
+        currentZone = ZoneCoordinates.ENTRANCE_ZONE;
+    }
+
+    public void goToGeneralZone(){
+        setDestination(ZoneCoordinates.GENERAL_ZONE.getLocation());
+        currentZone = ZoneCoordinates.GENERAL_ZONE;
+    }
+
+    public void goToBathroomZone(){
+        setDestination(ZoneCoordinates.BATHROOM_ZONE.getLocation());
+        currentZone = ZoneCoordinates.BATHROOM_ZONE;
+    }
+
+    public void goToStands(){
+        setDestination(ZoneCoordinates.STANDS_ZONE.getLocation());
+        currentZone = ZoneCoordinates.STANDS_ZONE;
+    }
+
+    public void goToTickets(){
+        setDestination(ZoneCoordinates.TICKETS_ZONE.getLocation());
+        currentZone = ZoneCoordinates.TICKETS_ZONE;
+    }
+
+    public void goToRegisterZone(){
+        setDestination(ZoneCoordinates.REGISTER_ZONE.getLocation());
+        currentZone = ZoneCoordinates.REGISTER_ZONE;
+    }
+
+    public void goToField(){
+        setDestination(ZoneCoordinates.FIELD_ZONE.getLocation());
+        currentZone = ZoneCoordinates.FIELD_ZONE;
+    }
+
+    public void goToBench(){
+        setDestination(ZoneCoordinates.BENCH_ZONE.getLocation());
+        currentZone = ZoneCoordinates.BENCH_ZONE;
+    }
+
     public Point getPosition() {
         return position;
     }

@@ -103,11 +103,13 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
         switch (currentState) {
             case ENTERING_STADIUM:
                 System.out.println(name + " is entering the stadium.");
+                goToEntrance();
                 stateMachine.nextState();
                 break;
 
             case INLINE_TOBUY:
                 System.out.println(name + " is waiting in line to buy a ticket.");
+                goToTickets();
                 // Start transaction (will block until a seller is available)
                 FanTicketSellerTransactionManager.getInstance().handleTransaction(this);
 
@@ -141,6 +143,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
 
             case INLINE_TOBUY_FOOD:
                 System.out.println(name + " is waiting in line to buy food.");
+                goToFoodZone();
                 // Start transaction (will block until a seller is available)
                 FanFoodSellerTransactionManager.getInstance().handleTransaction(this);
 
@@ -178,6 +181,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
                 try {
                     // Simulate time spent in the bathroom
                     System.out.println(name + " is using the bathroom.");
+                    goToBathroomZone();
                     Thread.sleep(SystemHandler.getInstance().getInputVariable("BathroomTime")); // Adjust duration as needed
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -190,11 +194,13 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
 
             case WATCHING_GAME:
                 System.out.println(name + " is watching the game.");
+                goToStands();
                 stateMachine.nextState();
                 break;
 
             case GENERAL_ZONE:
                 System.out.println(name + " is in the general zone.");
+                goToGeneralZone();
                 stateMachine.nextState();
                 break;
 
