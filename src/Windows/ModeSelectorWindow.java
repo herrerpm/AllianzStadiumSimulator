@@ -239,6 +239,7 @@ public class ModeSelectorWindow implements ConnectionListener {
         // Initialize the local simulation
         new InputWindow(); // Prompt for simulation inputs
         new TableStates();  // Initialize the state tables
+        new Entrance("UI", GraphicsManager.getInstance().initialize());
         // Add zone A to the server
         SystemHandler.getInstance().getInputVariables().put("Zone", 0);
         parentFrame.dispose(); // Close the mode selector window
