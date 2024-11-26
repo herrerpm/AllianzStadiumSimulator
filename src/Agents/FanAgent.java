@@ -47,7 +47,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
 
     @Override
     public void draw(Graphics g) {
-        g.setColor(getColorForState());
+        g.setColor(color);
         g.fillOval(position.x, position.y, diameter, diameter);
     }
     private Color getColorForState() {
