@@ -3,10 +3,12 @@ package Managers;
 import Agents.FanAgent;
 import Agents.PlayerAgent;
 import Agents.TicketSellerAgent;
+import Agents.FoodSellerAgent;
 import Handlers.FanHandler;
 import Handlers.PlayerHandler;
-import Handlers.SellingHandler;
+import Handlers.TicketSellingHandler;
 import Handlers.SystemHandler;
+import Handlers.FoodSellingHandler;
 
 import javax.swing.*;
 import java.awt.*;
@@ -64,7 +66,11 @@ public class GraphicsManager {
             player.updatePosition();
         }
         // Actualiza las posiciones de los TicketSellerAgents
-        for (TicketSellerAgent seller : SellingHandler.getInstance().getAgents()) {
+        for (TicketSellerAgent seller : TicketSellingHandler.getInstance().getAgents()) {
+            seller.updatePosition();
+        }
+
+        for (FoodSellerAgent seller : FoodSellingHandler.getInstance().getAgents()) {
             seller.updatePosition();
         }
     }
@@ -86,7 +92,11 @@ public class GraphicsManager {
 
         // Draw TicketSellerAgents
         g.setColor(Color.GREEN);
-        for (TicketSellerAgent seller : SellingHandler.getInstance().getAgents()) {
+        for (TicketSellerAgent seller : TicketSellingHandler.getInstance().getAgents()) {
+            seller.draw(g);
+        }
+
+        for (FoodSellerAgent seller : FoodSellingHandler.getInstance().getAgents()) {
             seller.draw(g);
         }
     }

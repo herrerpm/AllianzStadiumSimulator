@@ -29,13 +29,15 @@ public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentStat
 
         super(name, AgentState.WAITING);
         this.transactionTime = System.currentTimeMillis();
+        position.x = 10;
+        position.y = 150;
     }
-    private final static int side_lenght = 5;
+    private final static int side_lenght = 12;
 
     @Override
     public void draw(Graphics g) {
         g.setColor(getColorForState());
-        g.drawRect(position.x, position.y, side_lenght, side_lenght);
+        g.fillRect(position.x, position.y, side_lenght, side_lenght);
     }
 
     private Color getColorForState() {
@@ -49,9 +51,11 @@ public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentStat
             try {
                 // Sellers wait passively for transactions
                 Thread.sleep(1000); // Adjust as needed
+                goToTickets();
                 if (getCurrentState() == AgentState.WAITING &&
                         (System.currentTimeMillis() - transactionTime > timeWithoutAttending)) {
                     System.out.println(getName() + " Seller finished work");
+                    GraphicsManager.getInstance().triggerRepaint();
                     terminate();
                 }
             } catch (InterruptedException e) {
