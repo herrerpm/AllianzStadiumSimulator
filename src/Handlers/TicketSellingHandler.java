@@ -45,6 +45,11 @@ public class TicketSellingHandler extends AbstractAgentHandler<TicketSellerAgent
         }
     }
 
+    public void removeAgent(TicketSellerAgent seller) {
+        getAgents().remove(seller);
+        System.out.println(seller.getName() + " has been removed from the handler.");
+    }
+
     /**
      * Factory method to create individual TicketSellerAgent instances.
      *

@@ -25,6 +25,17 @@ public class FoodSellerAgent  extends AbstractAgent<FoodSellerAgent.AgentState> 
         g.setColor(Color.BLACK);
         g.drawPolygon(xPoints, yPoints, 5);
     }
+
+    @Override
+    protected int getWidth() {
+        return 10;
+    }
+
+    @Override
+    protected int getHeight() {
+        return 10;
+    }
+
     private Color getColorForState() {
         return currentState == AgentState.SELLING ? Color.GREEN : Color.LIGHT_GRAY;
     }
