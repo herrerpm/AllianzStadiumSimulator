@@ -1,7 +1,10 @@
 package Handlers;
 
 import Agents.FanAgent;
+import Agents.TicketSellerAgent;
 import Managers.ThreadManager;
+
+import java.awt.*;
 import java.util.List;
 
 /**
@@ -12,7 +15,7 @@ public class FanHandler extends AbstractAgentHandler<FanAgent.AgentState, FanAge
 
     // Private constructor to enforce singleton pattern
     private FanHandler() {
-        // Initialize any necessary fields here if needed
+        super();
     }
 
     // Holder class for lazy-loaded singleton instance
@@ -38,7 +41,15 @@ public class FanHandler extends AbstractAgentHandler<FanAgent.AgentState, FanAge
     protected FanAgent createAgent() {
         int agentId = agents.size() + 1;
         String fanName = "Fan-" + agentId;
-        return new FanAgent(fanName, 50);
+        FanAgent fan = new FanAgent(fanName);
+        fan.setPosition(new Point(100, 100)); // Punto A
+        fan.setDestination(new Point(400, 400)); // Punto B
+
+        return fan;
+    }
+
+    public void removeAgent(FanAgent fan) {
+        getAgents().remove(fan);
     }
 
 }

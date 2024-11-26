@@ -100,7 +100,7 @@ public class ModeSelectorWindow implements ConnectionListener {
     // Handle Server Mode
     private void handleServerMode(JFrame parentFrame) {
 
-        SystemHandler.getInstance().getInputVariables().put("mode",0);
+        SystemHandler.getInstance().getSystemVariables().put("mode","server");
         // Prompt for Port
         String portStr = JOptionPane.showInputDialog(parentFrame, "Enter Port Number:", "Server Configuration", JOptionPane.PLAIN_MESSAGE);
         if (portStr == null) {
@@ -155,7 +155,7 @@ public class ModeSelectorWindow implements ConnectionListener {
 
     // Handle Client Mode
     private void handleClientMode(JFrame parentFrame) {
-        SystemHandler.getInstance().getInputVariables().put("mode",1);
+        SystemHandler.getInstance().getSystemVariables().put("mode","client");
 
         // Prompt for IP Address
         String ipAddress = JOptionPane.showInputDialog(parentFrame, "Enter Server IP Address:", "Client Configuration", JOptionPane.PLAIN_MESSAGE);
@@ -231,7 +231,7 @@ public class ModeSelectorWindow implements ConnectionListener {
 
     // Handle Local Mode
     private void handleLocalMode(JFrame parentFrame) {
-        SystemHandler.getInstance().getInputVariables().put("mode",2);
+        SystemHandler.getInstance().getSystemVariables().put("mode","local");
         String message = "Application started in Local Mode.";
         JOptionPane.showMessageDialog(parentFrame, message, "Local Mode", JOptionPane.INFORMATION_MESSAGE);
 

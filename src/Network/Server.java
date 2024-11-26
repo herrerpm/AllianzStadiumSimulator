@@ -251,24 +251,7 @@ public class Server {
 
                 String message;
                 while (isClientRunning && (message = in.readLine()) != null) {
-                    System.out.println("Received from " + clientId + ": " + message);
-                    // Split the message by ","
-                    String[] parts = message.split(",");
-                    if (parts.length == 3) { // Ensure the message has all three components
-                        String command = parts[0].trim();
-                        String name = parts[1].trim();
-                        String zone = parts[2].trim();
-                        // Handle the parsed data
-                        System.out.println("Command: " + command);
-                        System.out.println("Name: " + name);
-                        System.out.println("Zone: " + zone);
-                        if (command.equals("create")){
-                            FanHandler.getInstance().createCustomAgent(name+" From:"+zone).getStateMachine().setCurrentState(FanAgent.AgentState.GENERAL_ZONE);
-                        }
-
-                    } else {
-                        System.err.println("Invalid message format: " + message);
-                    }
+                    MessageHandler.handleMessage(message);
                 }
             } catch (IOException e) {
                 System.err.println("Error communicating with client " + clientId + ": " + e.getMessage());

@@ -45,6 +45,6 @@ public class FanStateMachine {
 
     public void setCurrentState(FanAgent.AgentState state) {
         this.currentState = state;
-        fan.setCurrentState(state); // Keep fan's state synchronized
+        fan.currentState = state;
     }
 }

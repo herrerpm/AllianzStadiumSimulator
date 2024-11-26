@@ -37,7 +37,7 @@ public class PlayerHandler  extends AbstractAgentHandler<PlayerAgent.AgentState,
     protected PlayerAgent createAgent() {
         int agentId = agents.size() + 1;
         String playerName = "Player-" + agentId;
-        return new PlayerAgent(playerName, 50);
+        return new PlayerAgent(playerName);
     }
 
 }

@@ -1,5 +1,6 @@
 package Handlers;
 
+import Buffers.BathroomBuffer;
 import Managers.FanFoodSellerTransactionManager;
 import Managers.FanTicketSellerTransactionManager;
 
@@ -15,6 +16,7 @@ public class SystemHandler {
 
 
     private final Map<String, Integer> inputVariables = new HashMap<>();
+    private final Map<String, String> systemVariables = new HashMap<>();
     private SystemHandler() {
         inputVariables.put("nfans", 20);
         inputVariables.put("capacidadEstadio", 100);
@@ -22,8 +24,15 @@ public class SystemHandler {
         inputVariables.put("vendedoresComida", 5);
         inputVariables.put("njugadores", 5);
         inputVariables.put("capacidadBaños", 6);
-        inputVariables.put("ticketSellerTime", 3000);
-        inputVariables.put("foodSellerTime", 3000);
+        inputVariables.put("TicketSellerTime", 3000);
+        inputVariables.put("FoodSellerTime", 3000);
+        inputVariables.put("PlayerStateChangeTime", 10000);
+        inputVariables.put("AgentSpeed", 100);
+        inputVariables.put("BathroomTime", 2000);
+        inputVariables.put("FanStateChangeTime", 3000);
+        inputVariables.put("TicketSellerTerminateTime", 10000);
+        inputVariables.put("UpdateInterval", 500);
+        inputVariables.put("SeatsCapacity", 0);
     }
     public static SystemHandler getInstance(){
         if(instance == null){
@@ -34,6 +43,9 @@ public class SystemHandler {
 
     public Map<String, Integer> getInputVariables(){
         return inputVariables;
+    }
+    public Map<String, String> getSystemVariables(){
+        return systemVariables;
     }
 
     public int getInputVariable(String key) {
@@ -49,8 +61,8 @@ public class SystemHandler {
         int vendedoresBoletos = getInputVariable("vendedoresBoletos");
         int njugadores = getInputVariable("njugadores");
         int vendedoresComida = getInputVariable("vendedoresComida");
-        int ticketSellerTime = getInputVariable("ticketSellerTime");
-        int foodSellerTime = getInputVariable("foodSellerTime");
+        int ticketSellerTime = getInputVariable("TicketSellerTime");
+        int foodSellerTime = getInputVariable("FoodSellerTime");
 
         FanHandler.getInstance().createAgents(nfans);
         TicketSellingHandler.getInstance().createAgents(vendedoresBoletos);
@@ -68,6 +80,8 @@ public class SystemHandler {
                 foodSellingHandler,
                 foodSellerTime
         );
+
+        BathroomBuffer.getInstance(SystemHandler.getInstance().getInputVariable("capacidadBaños"));
 
     }
 

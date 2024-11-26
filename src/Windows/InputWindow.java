@@ -19,10 +19,13 @@ public class InputWindow {
         frame = new JFrame("Datos de entrada");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(400, 400);
-        frame.setLayout(new GridLayout(10, 2, 10, 10));
+        Map<String, Integer> variables = SystemHandler.getInstance().getInputVariables();
+        int totalInputs = variables.size();
+        int columns = 2;
+        int rows = (int) Math.ceil((double) totalInputs / columns);
+        frame.setLayout(new GridLayout(rows, columns, 10, 10));
 
        //Create inputs and text fields
-        Map<String, Integer> variables = SystemHandler.getInstance().getInputVariables();
         for (Map.Entry<String, Integer> entry : variables.entrySet()) {
             String key = entry.getKey();
             Integer defaultValue = entry.getValue();
