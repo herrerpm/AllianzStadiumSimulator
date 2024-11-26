@@ -24,8 +24,6 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
     private Rectangle currentZone; // Current zone where the Thread is at
     private int speed = SystemHandler.getInstance().getInputVariable("AgentSpeed");
 
-
-
     public void setDestination(Point destination) {
         this.destination = destination;
         this.reachedDestination = false; // Resetea el estado de llegada
@@ -39,6 +37,13 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
         }
     }
 
+    public boolean hasReachedDestination() {
+        return reachedDestination;
+    }
+
+    public boolean isDestinationSet() {
+        return destination != null;
+    }
     private void moveTowardsDestination() {
         int dx = destination.x - position.x;
         int dy = destination.y - position.y;
@@ -72,48 +77,56 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
         this.position = newPos;
     }
 
+    // Helper method to generate a random point within a given zone
+    protected Point getRandomPointInZone(Rectangle zone) {
+        Random random = new Random();
+        int x = zone.x + random.nextInt(zone.width);
+        int y = zone.y + random.nextInt(zone.height);
+        return new Point(x, y);
+    }
+
     public void goToFoodZone(){
-        setDestination(ZoneCoordinates.FOOD_ZONE.getLocation());
+        setDestination(getRandomPointInZone(ZoneCoordinates.FOOD_ZONE));
         currentZone = ZoneCoordinates.FOOD_ZONE;
     }
 
     public void goToEntrance(){
-        setDestination(ZoneCoordinates.ENTRANCE_ZONE.getLocation());
+        setDestination(getRandomPointInZone(ZoneCoordinates.ENTRANCE_ZONE));
         currentZone = ZoneCoordinates.ENTRANCE_ZONE;
     }
 
     public void goToGeneralZone(){
-        setDestination(ZoneCoordinates.GENERAL_ZONE.getLocation());
+        setDestination(getRandomPointInZone(ZoneCoordinates.GENERAL_ZONE));
         currentZone = ZoneCoordinates.GENERAL_ZONE;
     }
 
     public void goToBathroomZone(){
-        setDestination(ZoneCoordinates.BATHROOM_ZONE.getLocation());
+        setDestination(getRandomPointInZone(ZoneCoordinates.BATHROOM_ZONE));
         currentZone = ZoneCoordinates.BATHROOM_ZONE;
     }
 
     public void goToStands(){
-        setDestination(ZoneCoordinates.STANDS_ZONE.getLocation());
+        setDestination(getRandomPointInZone(ZoneCoordinates.STANDS_ZONE));
         currentZone = ZoneCoordinates.STANDS_ZONE;
     }
 
     public void goToTickets(){
-        setDestination(ZoneCoordinates.TICKETS_ZONE.getLocation());
+        setDestination(getRandomPointInZone(ZoneCoordinates.TICKETS_ZONE));
         currentZone = ZoneCoordinates.TICKETS_ZONE;
     }
 
     public void goToRegisterZone(){
-        setDestination(ZoneCoordinates.REGISTER_ZONE.getLocation());
+        setDestination(getRandomPointInZone(ZoneCoordinates.REGISTER_ZONE));
         currentZone = ZoneCoordinates.REGISTER_ZONE;
     }
 
     public void goToField(){
-        setDestination(ZoneCoordinates.FIELD_ZONE.getLocation());
+        setDestination(getRandomPointInZone(ZoneCoordinates.FIELD_ZONE));
         currentZone = ZoneCoordinates.FIELD_ZONE;
     }
 
     public void goToBench(){
-        setDestination(ZoneCoordinates.BENCH_ZONE.getLocation());
+        setDestination(getRandomPointInZone(ZoneCoordinates.BENCH_ZONE));
         currentZone = ZoneCoordinates.BENCH_ZONE;
     }
 

@@ -51,9 +51,14 @@ public class GraphicsManager {
             triggerRepaint();
         });
         timer.start();
+
         return drawPanel;
     }
 
+
+    public Graphics getGraphics(){
+        return drawPanel.getGraphics();
+    }
     private void updateAgentPositions() {
         // Actualiza las posiciones de los FanAgents
         for (FanAgent fan : FanHandler.getInstance().getAgents()) {
@@ -73,7 +78,7 @@ public class GraphicsManager {
     // Draws all agents by iterating over them
     private void drawGraphics(Graphics g) {
         // Draw FanAgents
-        g.setColor(Color.BLUE);
+//        g.setColor(Color.BLUE);
         for (FanAgent fan : FanHandler.getInstance().getAgents()) {
             fan.draw(g);
         }
