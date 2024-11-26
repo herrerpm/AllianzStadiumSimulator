@@ -224,7 +224,6 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
                 stateMachine.nextState();
                 break;
         }
-
     }
 
     private void terminate() {
