@@ -17,7 +17,7 @@ public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentStat
         FINISHED
     }
 
-    private static final int timeWithoutAttending = SystemHandler.getInstance().getInputVariable("TicketSellerTerminateTime");
+    private static final long timeWithoutAttending = SystemHandler.getInstance().getInputVariable("TicketSellerTerminateTime");
     private long transactionTime;
     private volatile boolean running = true;
 
@@ -64,6 +64,6 @@ public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentStat
         running = false;
         SellingHandler.getInstance().removeAgent(this);
         setCurrentState(AgentState.FINISHED);
-        Thread.currentThread().interrupt();
+//        Thread.currentThread().interrupt();
     }
 }

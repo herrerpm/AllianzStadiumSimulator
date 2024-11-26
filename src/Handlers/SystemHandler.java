@@ -33,6 +33,7 @@ public class SystemHandler {
         inputVariables.put("TicketSellerTerminateTime", 10000);
         inputVariables.put("UpdateInterval", 500);
         inputVariables.put("SeatsCapacity", 0);
+        inputVariables.put("RegisterTime", 1000);
     }
     public static SystemHandler getInstance(){
         if(instance == null){

@@ -187,22 +187,22 @@ public class TableStates {
         tableDataList.add(new Object[]{
                 "Buffers",
                 "Entrada de taquilla",
-                systemHandler.getInputVariable("capacidadEstadio")
+                fanHandler.getAgentCountByState(FanAgent.AgentState.INLINE_TOBUY) + fanHandler.getAgentCountByState(FanAgent.AgentState.BUYING_TICKET)
         });
         tableDataList.add(new Object[]{
                 "Buffers",
                 "Baños",
-                systemHandler.getInputVariable("capacidadBaños")
+                systemHandler.getInputVariable("capacidadBaños") - fanHandler.getAgentCountByState(FanAgent.AgentState.BATHROOM)
         });
         tableDataList.add(new Object[]{
                 "Buffers",
                 "Gradas",
-                systemHandler.getInputVariable("SeatsCapacity")
+                systemHandler.getInputVariable("capacidadEstadio") - fanHandler.getAgentCountByState(FanAgent.AgentState.WATCHING_GAME)
         });
         tableDataList.add(new Object[]{
                 "Buffers",
                 "En el estadio",
-                systemHandler.getInputVariable("capacidadEstadio")
+                SystemHandler.getInstance().getInputVariable("capacidadEstadio") - fanHandler.getAgents().size()
         });
 
         // Critical Zones (Zonas Críticas)
