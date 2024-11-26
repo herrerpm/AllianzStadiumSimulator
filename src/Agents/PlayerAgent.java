@@ -17,7 +17,7 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
 
     private final PlayerStateMachine stateMachine;
 
-    private static final int size = 5;
+    private static final int size = 10;
     @Override
     public void draw(Graphics g) {
         g.setColor(getColorForState());
@@ -57,14 +57,14 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
         System.out.println(name + " Current State: " + currentState);
         switch (currentState) {
             case PLAYING:
-                System.out.println(name + " is on field playing.");
                 goToField();
+                System.out.println(name + " is on field playing.");
                 stateMachine.nextState();
                 break;
 
             case ON_BENCH:
-                System.out.println(name + " is subbed off, now is on the bench.");
                 goToBench();
+                System.out.println(name + " is subbed off, now is on the bench.");
                 stateMachine.nextState();
                 break;
 
