@@ -24,6 +24,10 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
     private Rectangle currentZone; // Current zone where the Thread is at
     private int speed = SystemHandler.getInstance().getInputVariable("AgentSpeed");
 
+    protected Color color = Color.BLACK;
+    private Color nextColor = Color.BLACK;
+
+
 
 
     public void setDestination(Rectangle zone) {
@@ -46,15 +50,16 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
         int dx = destination.x - position.x;
         int dy = destination.y - position.y;
 
-        // Calcula la distancia total al destino
+        // Calculate the total distance to the destination
         double distance = Math.sqrt(dx * dx + dy * dy);
 
         if (distance <= speed) {
-            // Si está suficientemente cerca, considera que llegó
+            // If close enough, consider that it has arrived
             position.setLocation(destination);
             reachedDestination = true;
+            color = nextColor; // Update the color upon arrival
         } else {
-            // Calcula los incrementos en X e Y basados en la velocidad
+            // Calculate increments in X and Y based on speed
             double ratio = speed / distance;
             int stepX = (int) Math.round(dx * ratio);
             int stepY = (int) Math.round(dy * ratio);
@@ -62,6 +67,7 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
             position.translate(stepX, stepY);
         }
     }
+
 
     public void updatePositionRandomly() {
         if (currentZone == null) return;
@@ -79,48 +85,56 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
     public void goToFoodZone(){
         currentZone = ZoneCoordinates.FOOD_ZONE;
         setDestination(currentZone);
+        nextColor = Color.GREEN; // Set the desired color
     }
 
     public void goToEntrance(){
         currentZone = ZoneCoordinates.ENTRANCE_ZONE;
         setDestination(currentZone);
+        nextColor = Color.BLUE;
     }
 
     public void goToGeneralZone(){
         currentZone = ZoneCoordinates.GENERAL_ZONE;
         setDestination(currentZone);
+        nextColor = Color.GRAY;
     }
 
     public void goToBathroomZone(){
         currentZone = ZoneCoordinates.BATHROOM_ZONE;
         setDestination(currentZone);
+        nextColor = Color.CYAN;
     }
 
     public void goToStands(){
         currentZone = ZoneCoordinates.STANDS_ZONE;
         setDestination(currentZone);
+        nextColor = Color.LIGHT_GRAY;
     }
 
     public void goToTickets(){
         currentZone = ZoneCoordinates.TICKETS_ZONE;
         setDestination(currentZone);
+        nextColor = Color.RED;
     }
 
     public void goToRegisterZone(){
         currentZone = ZoneCoordinates.REGISTER_ZONE;
         setDestination(currentZone);
+        nextColor = Color.PINK;
     }
 
     public void goToField(){
         currentZone = ZoneCoordinates.FIELD_ZONE;
         setDestination(currentZone);
+        nextColor = Color.MAGENTA;
     }
 
     public void goToBench(){
         currentZone = ZoneCoordinates.BENCH_ZONE;
         setDestination(currentZone);
+        nextColor = Color.YELLOW;
     }
-
     public Point getPosition() {
         return position;
     }

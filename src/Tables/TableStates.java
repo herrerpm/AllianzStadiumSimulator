@@ -52,6 +52,8 @@ public class TableStates {
         tableModel.addColumn("Categoría");
         tableModel.addColumn("Estado");
         tableModel.addColumn("Cantidad");
+        tableModel.addColumn("Color");
+
 
         // Initialize the filter field
         filterField = new JTextField();
@@ -149,7 +151,8 @@ public class TableStates {
             tableDataList.add(new Object[]{
                     "Threads",
                     state.toString(),
-                    threadManager.getThreadCountByState(state)
+                    threadManager.getThreadCountByState(state),
+                    null
             });
         }
 
@@ -158,7 +161,8 @@ public class TableStates {
             tableDataList.add(new Object[]{
                     "Player",
                     state.toString(),
-                    playerHandler.getAgentCountByState(state)
+                    playerHandler.getAgentCountByState(state),
+                    playerHandler.getAgentColorForState(state)
             });
         }
 
@@ -167,7 +171,8 @@ public class TableStates {
             tableDataList.add(new Object[]{
                     "TicketSeller",
                     state.toString(),
-                    ticketSellerHandler.getAgentCountByState(state)
+                    ticketSellerHandler.getAgentCountByState(state),
+                    ticketSellerHandler.getAgentColorForState(state)
             });
         }
 
@@ -182,10 +187,12 @@ public class TableStates {
 
         // FanAgent States
         for (FanAgent.AgentState state : FanAgent.AgentState.values()) {
+
             tableDataList.add(new Object[]{
                     "Fan",
                     state.toString(),
-                    fanHandler.getAgentCountByState(state)
+                    fanHandler.getAgentCountByState(state),
+                    fanHandler.getAgentColorForState(state)
             });
         }
 
@@ -227,6 +234,25 @@ public class TableStates {
         // Update the table model with new data
         for (Object[] rowData : tableDataList) {
             tableModel.addRow(rowData);
+        }
+        table.setDefaultRenderer(Object.class, new ColorRenderer());
+
+    }
+
+    private static class ColorRenderer extends DefaultTableCellRenderer {
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+            if (column == 3) {
+                Color color = (Color) value;
+                c.setBackground(color != null ? color : Color.WHITE);
+                setText("");
+            } else {
+                c.setBackground(isSelected ? table.getSelectionBackground() : Color.WHITE);
+            }
+            c.setForeground(Color.BLACK);
+            return c;
         }
     }
 
