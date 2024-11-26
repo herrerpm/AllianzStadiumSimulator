@@ -43,7 +43,7 @@ public class GraphicsManager {
                 drawGraphics(g);
             }
         };
-        drawPanel.setBackground(Color.WHITE); // Optional: Set background color
+        drawPanel.setOpaque(false); // Optional: Set background color
 
         // Configura un Timer para actualizar posiciones y repintar
         Timer timer = new Timer(UPDATE_INTERVAL, e -> {
