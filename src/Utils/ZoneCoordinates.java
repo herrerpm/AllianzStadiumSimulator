@@ -11,11 +11,11 @@ public class ZoneCoordinates {
     public static final Rectangle GENERAL_ZONE = new Rectangle(320,120,480,180);
     public static final Rectangle FOOD_ZONE = new Rectangle(570,20,230,80);
     public static final Rectangle BATHROOM_ZONE = new Rectangle(320,20,230,80);
-    public static final Rectangle STANDS_ZONE = new Rectangle(20,270,780,305);
+    public static final Rectangle STANDS_ZONE = new Rectangle(20,270,380,305);
     public static final Rectangle TICKETS_ZONE = new Rectangle(20, 170, 130, 130);
     public static final Rectangle REGISTER_ZONE = new Rectangle(170, 170, 130, 130);
-    public static final Rectangle FIELD_ZONE = new Rectangle(120,320,580,230);
-    public static final Rectangle BENCH_ZONE = new Rectangle(170,570,480,5);
+    public static final Rectangle FIELD_ZONE = new Rectangle(420,270,380,205);
+    public static final Rectangle BENCH_ZONE = new Rectangle(420,495,380,105);
 
     /**
      *

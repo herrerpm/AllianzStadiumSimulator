@@ -38,19 +38,19 @@ public class EntrancePanel extends JPanel {
         g.setColor(Color.BLACK);
         g.drawString("Zona General", 303, 115);
         // Gradas
-        g.setColor(new Color(45,87,44));
-        g.fillRect(0,250,800,325);
+        g.setColor(Color.PINK);
+        g.fillRect(0,250,400,325);
         g.setColor(Color.BLACK);
         g.drawString("Gradas",3,265);
         // Cancha
-        g.setColor(Color.GREEN);
-        g.fillRect(100,300,600,250);
+        g.setColor(new Color(45,87,44));
+        g.fillRect(400,250,400,225);
         g.setColor(Color.BLACK);
-        g.drawString("Cancha", 103, 315);
+        g.drawString("Cancha", 403, 265);
         // Banca
-        g.setColor(Color.WHITE);
-        g.fillRect(150,550,500,25);
+        g.setColor(Color.lightGray);
+        g.fillRect(400,475,400,125);
         g.setColor(Color.BLACK);
-        g.drawString("Banca",153, 565);
+        g.drawString("Banca",403, 490);
     }
 }
