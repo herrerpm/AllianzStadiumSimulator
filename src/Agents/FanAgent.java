@@ -34,7 +34,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
 
     private final FanStateMachine stateMachine;
 
-    private final static int diameter = 20;
+    private final static int diameter = 10;
 
     public FanAgent(String name) {
         // Set the initial state to ENTERING_STADIUM

@@ -18,7 +18,7 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
     protected Thread thread;
     private volatile boolean running = true;
     protected Point position = new Point(0,0);
-    private static final int RADIUS = 10; // Radio máximo del movimiento aleatorio
+    private static final int RADIUS = 5; // Radio máximo del movimiento aleatorio
     private Point destination; // Punto B
     private boolean reachedDestination = false; // Estado para verificar si llegó al destino
     private Rectangle currentZone; // Current zone where the Thread is at
@@ -30,9 +30,12 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
 
 
 
-    public void setDestination(Point destination) {
-        this.destination = destination;
-        this.reachedDestination = false; // Resetea el estado de llegada
+    public void setDestination(Rectangle zone) {
+        Random random = new Random();
+        int x = zone.x + random.nextInt(zone.width);
+        int y = zone.y + random.nextInt(zone.height);
+        this.destination = new Point(x, y);
+        this.reachedDestination = false;
     }
 
     public void updatePosition() {
@@ -67,69 +70,69 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
 
 
     public void updatePositionRandomly() {
-        Random random = new Random();
-        Point newPos;
-        do {
-            int dx = random.nextInt(RADIUS * 2 + 1) - RADIUS; // Desplazamiento aleatorio en X
-            int dy = random.nextInt(RADIUS * 2 + 1) - RADIUS; // Desplazamiento aleatorio en Y
-            newPos = new Point(position.x + dx, position.y + dy);
-        } while (currentZone != null && !ZoneCoordinates.isWithinZone(currentZone, newPos)); // Asegura que la nueva posición esté dentro de los límites
+        if (currentZone == null) return;
 
-        this.position = newPos;
+        Random random = new Random();
+        int newX = Math.max(currentZone.x,
+                Math.min(currentZone.x + currentZone.width, position.x + random.nextInt(RADIUS * 2 + 1) - RADIUS));
+        int newY = Math.max(currentZone.y,
+                Math.min(currentZone.y + currentZone.height, position.y + random.nextInt(RADIUS * 2 + 1) - RADIUS));
+
+        this.position.setLocation(newX, newY);
     }
 
 
     public void goToFoodZone(){
-        setDestination(ZoneCoordinates.FOOD_ZONE.getLocation());
         currentZone = ZoneCoordinates.FOOD_ZONE;
+        setDestination(currentZone);
         nextColor = Color.GREEN; // Set the desired color
     }
 
     public void goToEntrance(){
-        setDestination(ZoneCoordinates.ENTRANCE_ZONE.getLocation());
         currentZone = ZoneCoordinates.ENTRANCE_ZONE;
+        setDestination(currentZone);
         nextColor = Color.BLUE;
     }
 
     public void goToGeneralZone(){
-        setDestination(ZoneCoordinates.GENERAL_ZONE.getLocation());
         currentZone = ZoneCoordinates.GENERAL_ZONE;
+        setDestination(currentZone);
         nextColor = Color.GRAY;
     }
 
     public void goToBathroomZone(){
-        setDestination(ZoneCoordinates.BATHROOM_ZONE.getLocation());
         currentZone = ZoneCoordinates.BATHROOM_ZONE;
+        setDestination(currentZone);
         nextColor = Color.CYAN;
     }
 
     public void goToStands(){
-        setDestination(ZoneCoordinates.STANDS_ZONE.getLocation());
         currentZone = ZoneCoordinates.STANDS_ZONE;
+        setDestination(currentZone);
         nextColor = Color.LIGHT_GRAY;
     }
 
     public void goToTickets(){
-        setDestination(ZoneCoordinates.TICKETS_ZONE.getLocation());
         currentZone = ZoneCoordinates.TICKETS_ZONE;
+        setDestination(currentZone);
         nextColor = Color.RED;
     }
 
     public void goToRegisterZone(){
-        setDestination(ZoneCoordinates.REGISTER_ZONE.getLocation());
         currentZone = ZoneCoordinates.REGISTER_ZONE;
+        setDestination(currentZone);
         nextColor = Color.PINK;
     }
 
     public void goToField(){
-        setDestination(ZoneCoordinates.FIELD_ZONE.getLocation());
         currentZone = ZoneCoordinates.FIELD_ZONE;
+        setDestination(currentZone);
         nextColor = Color.MAGENTA;
     }
 
     public void goToBench(){
-        setDestination(ZoneCoordinates.BENCH_ZONE.getLocation());
         currentZone = ZoneCoordinates.BENCH_ZONE;
+        setDestination(currentZone);
         nextColor = Color.YELLOW;
     }
     public Point getPosition() {
