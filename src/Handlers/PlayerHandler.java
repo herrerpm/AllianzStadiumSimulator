@@ -4,6 +4,7 @@ import Agents.FanAgent;
 import Agents.PlayerAgent;
 import Agents.TicketSellerAgent;
 
+import java.awt.*;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,6 +28,19 @@ public class PlayerHandler  extends AbstractAgentHandler<PlayerAgent.AgentState,
     public static PlayerHandler getInstance() {
         return PlayerHandler.Holder.INSTANCE;
     }
+
+    public Color getAgentColorForState(PlayerAgent.AgentState state) {
+        switch (state) {
+            case PLAYING:
+                return Color.RED;
+            case ON_BENCH:
+                return Color.YELLOW;
+            default:
+                return Color.WHITE;
+        }
+    }
+
+
 
     /**
      * Factory method to create an individual FanAgent.
