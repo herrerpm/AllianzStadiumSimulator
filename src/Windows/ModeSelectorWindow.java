@@ -280,6 +280,7 @@ public class ModeSelectorWindow implements ConnectionListener {
         SwingUtilities.invokeLater(() -> {
             JOptionPane.showMessageDialog(frame, "Successfully connected to the server.", "Connection Established", JOptionPane.INFORMATION_MESSAGE);
             // Launch main simulation windows
+            new Credits();
             new InputWindow();  // Prompt for simulation inputs
             new TableStates();   // Initialize the state tables
             JPanel threads = GraphicsManager.getInstance().initialize();
