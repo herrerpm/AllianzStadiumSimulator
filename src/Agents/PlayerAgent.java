@@ -58,11 +58,13 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
         switch (currentState) {
             case PLAYING:
                 System.out.println(name + " is on field playing.");
+                goToField();
                 stateMachine.nextState();
                 break;
 
             case ON_BENCH:
                 System.out.println(name + " is subbed off, now is on the bench.");
+                goToBench();
                 stateMachine.nextState();
                 break;
 
