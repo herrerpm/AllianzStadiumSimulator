@@ -18,25 +18,48 @@ public class InputWindow {
     public InputWindow(){
         frame = new JFrame("Datos de entrada");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setSize(400, 400);
-        frame.setLayout(new GridLayout(10, 2, 10, 10));
 
-       //Create inputs and text fields
+        // Use a main panel with BorderLayout
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Add padding
+
+        // Panel for input fields using GridBagLayout for flexibility
+        JPanel inputPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5); // Padding between components
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.weightx = 1.0;
+
         Map<String, Integer> variables = SystemHandler.getInstance().getInputVariables();
+        int row = 0;
+
         for (Map.Entry<String, Integer> entry : variables.entrySet()) {
             String key = entry.getKey();
             Integer defaultValue = entry.getValue();
 
+            // Label constraints
+            gbc.gridx = 0;
+            gbc.gridy = row;
+            gbc.weightx = 0.3;
             JLabel label = new JLabel(key + ":");
-            JTextField textField = new JTextField(String.valueOf(defaultValue));
+            inputPanel.add(label, gbc);
 
+            // TextField constraints
+            gbc.gridx = 1;
+            gbc.weightx = 0.7;
+            JTextField textField = new JTextField(15);
+            textField.setText(String.valueOf(defaultValue));
             inputFields.put(key, textField);
-            frame.add(label);
-            frame.add(textField);
+            inputPanel.add(textField, gbc);
+
+            row++;
         }
 
+        mainPanel.add(inputPanel, BorderLayout.CENTER);
 
-
+        // Panel for the submit button
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton submitButton = new JButton("Confirmar");
         submitButton.addActionListener(new ActionListener() {
             @Override
@@ -44,9 +67,13 @@ public class InputWindow {
                 handleInput();
             }
         });
-        frame.add(new JLabel());
-        frame.add(submitButton);
+        buttonPanel.add(submitButton);
 
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        frame.setContentPane(mainPanel);
+        frame.pack(); // Let the frame size itself based on components
+        frame.setLocationRelativeTo(null); // Center the window on the screen
         frame.setVisible(true);
     }
 
@@ -59,7 +86,7 @@ public class InputWindow {
 
     private void handleInput() {
         try {
-            //Get input values from Map
+            // Get input values from Map
             for (Map.Entry<String, JTextField> entry : inputFields.entrySet()) {
                 String key = entry.getKey();
                 JTextField textField = entry.getValue();
@@ -80,6 +107,4 @@ public class InputWindow {
             JOptionPane.showMessageDialog(frame, "Please enter valid numbers.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
-
 }
-

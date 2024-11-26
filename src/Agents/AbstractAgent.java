@@ -116,4 +116,3 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
     // Modified draw method to accept Graphics parameter
     public abstract void draw(Graphics g);
 }
-

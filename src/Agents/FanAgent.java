@@ -1,5 +1,8 @@
 package Agents;
 
+
+import Handlers.FanHandler;
+import Handlers.SellingHandler;
 import Handlers.SystemHandler;
 import Managers.GraphicsManager;
 import Managers.FanFoodSellerTransactionManager;
@@ -11,15 +14,18 @@ import java.awt.*;
 public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runnable {
 
     public enum AgentState {
-        ENTERING_STADIUM, // New starting state
-        INLINE_TOBUY,      // Represents being in line to buy a ticket
+        ENTERING_STADIUM,
+
+        REGISTER,
+        INLINE_TOBUY,
         BUYING_TICKET,
         BUYING_FOOD,
         INLINE_TOBUY_FOOD,
         BATHROOM_LINE,          // New state: waiting in line to use the bathroom
         BATHROOM,
         WATCHING_GAME,
-        GENERAL_ZONE
+        GENERAL_ZONE,
+        EXIT
     }
 
     public void setCurrentState(FanAgent.AgentState state){
@@ -68,11 +74,16 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
     private void initializeTransitions() {
         // Define transition from ENTERING_STADIUM to INLINE_TOBUY with probability 1.0
         stateMachine.addTransition(AgentState.ENTERING_STADIUM, AgentState.INLINE_TOBUY, 1.0);
+        stateMachine.addTransition(AgentState.REGISTER, AgentState.GENERAL_ZONE, 1.0);
 
         // Other transitions remain the same
         stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.INLINE_TOBUY_FOOD, 0.3);
         stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.BATHROOM_LINE, 0.2);
-        stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.WATCHING_GAME, 0.5);
+        stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.WATCHING_GAME, 0.4);
+        stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.EXIT, 0.03);
+      
+        stateMachine.addTransition(AgentState.BATHROOM_LINE, AgentState.BATHROOM, 0.7);
+        stateMachine.addTransition(AgentState.BATHROOM_LINE, AgentState.GENERAL_ZONE, 0.3);
 
         stateMachine.addTransition(AgentState.BATHROOM_LINE, AgentState.BATHROOM, 0.7);
         stateMachine.addTransition(AgentState.BATHROOM_LINE, AgentState.GENERAL_ZONE, 0.3);
@@ -112,6 +123,14 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
                         }
                     }
                 }
+                try{
+                    System.out.println(name + " is in the registering.");
+                    Thread.sleep(SystemHandler.getInstance().getInputVariable("RegisterTime")); // Adjust duration as needed
+
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    System.out.println(name + " was interrupted while registering.");
+                }
                 // After transaction, proceed to next state
                 stateMachine.nextState();
                 break;
@@ -148,7 +167,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
                 System.out.println(name + " is waiting in line to use the bathroom.");
                 boolean entered = BathroomBuffer.getInstance().tryEnterBuffer(this);
                 if (entered) {
-                    stateMachine.nextState(); // Transition to BATHROOM
+                    setCurrentState(AgentState.BATHROOM);
                 } else {
                     System.out.println(name + " remains in the bathroom line.");
                     // Optionally, you can wait for some time before retrying
@@ -179,10 +198,24 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
                 stateMachine.nextState();
                 break;
 
+            case REGISTER:
+                break;
+
+            case EXIT:
+                System.out.println(name + " Exit the stadium");
+                terminate();
+                break;
+
             default:
                 stateMachine.nextState();
                 break;
         }
+    }
+
+    private void terminate() {
+        FanHandler.getInstance().removeAgent(this);
+        setCurrentState(AgentState.EXIT);
+        Thread.currentThread().interrupt();
     }
 
     @Override

@@ -24,7 +24,7 @@ public class FoodSellerAgent  extends AbstractAgent<FoodSellerAgent.AgentState> 
     public void _run() {
         // Since the seller's actions are managed by the TransactionManager,
         // the run method can be empty or manage additional behaviors if necessary.
-            // The seller waits passively for transactions initiated by the TransactionManager
+        // The seller waits passively for transactions initiated by the TransactionManager
         try {
             Thread.sleep(SystemHandler.getInstance().getInputVariable("FoodSellerTime")); // Adjust as needed
         } catch (InterruptedException e) {

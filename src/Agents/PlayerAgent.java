@@ -74,13 +74,13 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
 
     @Override
     public void _run() {
-            performAction();
-            System.out.println("----------------------------\n");
-            try {
-                Thread.sleep(SystemHandler.getInstance().getInputVariable("PlayerStateChangeTime"));
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+        performAction();
+        System.out.println("----------------------------\n");
+        try {
+            Thread.sleep(SystemHandler.getInstance().getInputVariable("PlayerStateChangeTime"));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
         System.out.println(name + " has completed all simulation steps.");
     }
 

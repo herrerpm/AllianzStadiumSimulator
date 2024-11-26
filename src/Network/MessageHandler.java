@@ -16,7 +16,7 @@ public class MessageHandler {
             if (command.equals("create")) {
                 FanHandler.getInstance()
                         .createCustomAgent(name + " From: " + zone)
-                        .setCurrentState(FanAgent.AgentState.GENERAL_ZONE);
+                        .setCurrentState(FanAgent.AgentState.REGISTER);
             }
         }
     }
