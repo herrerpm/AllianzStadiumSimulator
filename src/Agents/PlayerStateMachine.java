@@ -3,14 +3,12 @@ package Agents;
 import java.util.*;
 
 public class PlayerStateMachine {
-    private PlayerAgent.AgentState currentState;
     private final Map<PlayerAgent.AgentState, List<Transition<PlayerAgent.AgentState>>> transitions = new HashMap<>();
     private final Random random = new Random();
     private final PlayerAgent player; // Reference to the fan agent
 
     public PlayerStateMachine(PlayerAgent player) {
         this.player = player;
-        this.currentState = player.getCurrentState(); // Initialize with the fan's current state
     }
 
     public void addTransition(PlayerAgent.AgentState fromState, PlayerAgent.AgentState toState, double probability) {
@@ -18,9 +16,9 @@ public class PlayerStateMachine {
     }
 
     public void nextState() {
-        List<Transition<PlayerAgent.AgentState>> possibleTransitions = transitions.get(currentState);
+        List<Transition<PlayerAgent.AgentState>> possibleTransitions = transitions.get(player.getCurrentState());
         if (possibleTransitions == null || possibleTransitions.isEmpty()) {
-            System.out.println("No transitions defined for state: " + currentState);
+            System.out.println("No transitions defined for state: " + player.getCurrentState());
             return;
         }
 
@@ -29,22 +27,17 @@ public class PlayerStateMachine {
         for (Transition<PlayerAgent.AgentState> transition : possibleTransitions) {
             cumulativeProbability += transition.getProbability();
             if (rand <= cumulativeProbability) {
-                System.out.println("Transitioning from " + currentState + " to " + transition.getTargetState());
-                currentState = transition.getTargetState();
-                player.setCurrentState(currentState); // Update fan's current state
+                System.out.println("Transitioning from " + player.getCurrentState() + " to " + transition.getTargetState());
+                player.setCurrentState(transition.getTargetState()); // Update fan's current state
                 return;
             }
         }
 
-        System.out.println("Staying in state: " + currentState);
+        System.out.println("Staying in state: " + player.getCurrentState());
     }
 
     public PlayerAgent.AgentState getCurrentState() {
-        return currentState;
+        return player.getCurrentState();
     }
 
-    public void setCurrentState(PlayerAgent.AgentState state) {
-        this.currentState = state;
-        player.setCurrentState(state); // Keep fan's state synchronized
-    }
 }

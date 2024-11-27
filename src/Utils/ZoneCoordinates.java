@@ -16,7 +16,6 @@ public class ZoneCoordinates {
     public static final Rectangle STANDS_ZONE = new Rectangle(0, 300, 400, 325);
     public static final Rectangle FIELD_ZONE = new Rectangle(400, 300, 400, 150);
     public static final Rectangle BENCH_ZONE = new Rectangle(400, 450, 400, 100);
-
     /**
      *
      * @param zone The Limiting zone where the Thread is supposed to be

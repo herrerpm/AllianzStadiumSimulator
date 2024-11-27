@@ -27,12 +27,13 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
     @Override
     public void draw(Graphics g) {
         g.setColor(getColorForState());
-        // Calcular los vértices del triángulo (equilátero)
+        // Drawing logic for the player (e.g., triangle)
+        // Calculate the vertices of the triangle (equilateral)
         int[] xPoints = new int[3];
         int[] yPoints = new int[3];
 
         for (int i = 0; i < 3; i++) {
-            double angle = Math.toRadians(120 * i - 90); // Ángulos: -90°, 30°, 150°
+            double angle = Math.toRadians(120 * i - 90);
             xPoints[i] = position.x + (int) (SIZE * Math.cos(angle));
             yPoints[i] = position.y + (int) (SIZE * Math.sin(angle));
         }
@@ -46,19 +47,7 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
         return SIZE;
     }
 
-    @Override
-    protected int getHeight() {
-        return SIZE;
-    }
 
-    private Color getColorForState() {
-        return currentState == AgentState.PLAYING ? Color.RED : Color.YELLOW;
-    }
-
-    private void initializeTransitions() {
-        stateMachine.addTransition(AgentState.ON_BENCH, AgentState.PLAYING, 0.7);
-        stateMachine.addTransition(AgentState.PLAYING, AgentState.ON_BENCH, 0.3);
-    }
 
     public void enterField() {
         GameBuffer buffer = GameBuffer.getInstance();
@@ -72,10 +61,23 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
         buffer.leaveBuffer(this);
         goToBench();
         System.out.println(name + " has left the field.");
+
+
+    @Override
+    protected int getHeight() {
+        return SIZE;
+    }
+
+    private Color getColorForState() {
+        return currentState == AgentState.PLAYING ? Color.RED : Color.YELLOW;
+    }
+
+    private void initializeTransitions() {
+        stateMachine.addTransition(PlayerAgent.AgentState.ON_BENCH, AgentState.PLAYING, 0.95);
+        stateMachine.addTransition(AgentState.PLAYING, AgentState.ON_BENCH, 0.05);
     }
 
     public void performAction() {
-        PlayerAgent.AgentState currentState = stateMachine.getCurrentState();
         System.out.println(name + " Current State: " + currentState);
         switch (currentState) {
             case ENTERING_FIELD:

@@ -2,7 +2,6 @@ package Agents;
 
 import Handlers.SystemHandler;
 import Handlers.TicketSellingHandler;
-
 import java.awt.*;
 
 public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentState> implements Runnable {
