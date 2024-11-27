@@ -33,7 +33,6 @@ public class SystemHandler {
         inputVariables.put("FanStateChangeTime", 3000);
         inputVariables.put("TicketSellerTerminateTime", 10000);
         inputVariables.put("UpdateInterval", 500);
-        inputVariables.put("SeatsCapacity", 0);
         inputVariables.put("RegisterTime", 1000);
         inputVariables.put("EnteringStadium", 1000);
     }
