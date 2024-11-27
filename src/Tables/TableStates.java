@@ -199,18 +199,8 @@ public class TableStates {
         // Buffers
         tableDataList.add(new Object[]{
                 "Buffers",
-                "Entrada de taquilla",
-                fanHandler.getAgentCountByState(FanAgent.AgentState.INLINE_TOBUY) + fanHandler.getAgentCountByState(FanAgent.AgentState.BUYING_TICKET)
-        });
-        tableDataList.add(new Object[]{
-                "Buffers",
                 "Baños",
                 systemHandler.getInputVariable("capacidadBaños") - fanHandler.getAgentCountByState(FanAgent.AgentState.BATHROOM)
-        });
-        tableDataList.add(new Object[]{
-                "Buffers",
-                "Gradas",
-                systemHandler.getInputVariable("capacidadEstadio") - fanHandler.getAgentCountByState(FanAgent.AgentState.WATCHING_GAME)
         });
         tableDataList.add(new Object[]{
                 "Buffers",
@@ -220,8 +210,8 @@ public class TableStates {
 
         // Critical Zones (Zonas Críticas)
         FanAgent.AgentState[] criticalStates = {
-                FanAgent.AgentState.BUYING_FOOD,
-                FanAgent.AgentState.BUYING_TICKET
+                FanAgent.AgentState.INLINE_TOBUY_FOOD,
+                FanAgent.AgentState.INLINE_TOBUY
         };
         for (FanAgent.AgentState state : criticalStates) {
             tableDataList.add(new Object[]{
