@@ -79,19 +79,16 @@ public class GraphicsManager {
     // Draws all agents by iterating over them
     private void drawGraphics(Graphics g) {
         // Draw FanAgents
-        g.setColor(Color.BLUE);
         for (FanAgent fan : FanHandler.getInstance().getAgents()) {
             fan.draw(g);
         }
 
         // Draw PlayerAgents
-        g.setColor(Color.RED);
         for (PlayerAgent player : PlayerHandler.getInstance().getAgents()) {
             player.draw(g);
         }
 
         // Draw TicketSellerAgents
-        g.setColor(Color.GREEN);
         for (TicketSellerAgent seller : TicketSellingHandler.getInstance().getAgents()) {
             seller.draw(g);
         }

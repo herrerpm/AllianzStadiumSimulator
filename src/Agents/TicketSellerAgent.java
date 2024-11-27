@@ -1,15 +1,9 @@
-// File: src/Agents/TicketSellerAgent.java
-
 package Agents;
 
-import Handlers.SellingHandler;
 import Handlers.SystemHandler;
-import Managers.GraphicsManager;
 import java.awt.*;
 
 public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentState> implements Runnable {
-
-
 
     public enum AgentState {
         SELLING,
@@ -17,58 +11,43 @@ public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentStat
         FINISHED
     }
 
-
-    private static final long timeWithoutAttending = SystemHandler.getInstance().getInputVariable("TicketSellerTerminateTime");
-    private long transactionTime;
-    private volatile boolean running = true;
-
-
-    // New attribute to store the current zone
+    private static final int SIDE_LENGTH = 12;
 
     public TicketSellerAgent(String name) {
-
         super(name, AgentState.WAITING);
-        this.transactionTime = System.currentTimeMillis();
         position.x = 10;
         position.y = 150;
     }
-    private final static int side_lenght = 12;
 
     @Override
     public void draw(Graphics g) {
         g.setColor(getColorForState());
-        g.fillRect(position.x, position.y, side_lenght, side_lenght);
+        g.fillRect(position.x, position.y, SIDE_LENGTH, SIDE_LENGTH);
+    }
+
+    @Override
+    protected int getWidth() {
+        return SIDE_LENGTH;
+    }
+
+    @Override
+    protected int getHeight() {
+        return SIDE_LENGTH;
     }
 
     private Color getColorForState() {
         return currentState == AgentState.SELLING ? Color.GREEN : Color.LIGHT_GRAY;
     }
+
     @Override
     public void _run() {
-        // The seller's actions are managed by the TransactionManager,
-        // so this can remain empty or include additional behaviors if necessary.
-        while (running) {
+        // The seller's actions are managed by the TransactionManager
             try {
-                // Sellers wait passively for transactions
                 Thread.sleep(1000); // Adjust as needed
                 goToTickets();
-                if (getCurrentState() == AgentState.WAITING &&
-                        (System.currentTimeMillis() - transactionTime > timeWithoutAttending)) {
-                    System.out.println(getName() + " Seller finished work");
-                    GraphicsManager.getInstance().triggerRepaint();
-                    terminate();
-                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 System.out.println(getName() + " interrupted.");
-                break;
             }
-        }
-    }
-    private void terminate() {
-        running = false;
-        SellingHandler.getInstance().removeAgent(this);
-        setCurrentState(AgentState.FINISHED);
-//        Thread.currentThread().interrupt();
     }
 }

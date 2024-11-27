@@ -1,12 +1,10 @@
 package Agents;
 
-
 import Handlers.FanHandler;
-import Handlers.SellingHandler;
 import Handlers.SystemHandler;
-import Managers.GraphicsManager;
 import Managers.FanFoodSellerTransactionManager;
 import Managers.FanTicketSellerTransactionManager;
+import Managers.GraphicsManager;
 import Buffers.BathroomBuffer;
 
 import java.awt.*;
@@ -15,26 +13,25 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
 
     public enum AgentState {
         ENTERING_STADIUM,
-
         REGISTER,
         INLINE_TOBUY,
         BUYING_TICKET,
         BUYING_FOOD,
         INLINE_TOBUY_FOOD,
-        BATHROOM_LINE,          // New state: waiting in line to use the bathroom
+        BATHROOM_LINE,
         BATHROOM,
         WATCHING_GAME,
         GENERAL_ZONE,
         EXIT
     }
 
-    public void setCurrentState(FanAgent.AgentState state){
+    public void setCurrentState(FanAgent.AgentState state) {
         this.stateMachine.setCurrentState(state);
     }
 
     private final FanStateMachine stateMachine;
 
-    private final static int diameter = 10;
+    private static final int DIAMETER = 10;
 
     public FanAgent(String name) {
         // Set the initial state to ENTERING_STADIUM
@@ -48,8 +45,19 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
     @Override
     public void draw(Graphics g) {
         g.setColor(color);
-        g.fillOval(position.x, position.y, diameter, diameter);
+        g.fillOval(position.x, position.y, DIAMETER, DIAMETER);
     }
+
+    @Override
+    protected int getWidth() {
+        return DIAMETER;
+    }
+
+    @Override
+    protected int getHeight() {
+        return DIAMETER;
+    }
+
     private Color getColorForState() {
         switch (currentState) {
             case ENTERING_STADIUM:
@@ -78,11 +86,10 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
     }
 
     private void initializeTransitions() {
-        // Define transition from ENTERING_STADIUM to INLINE_TOBUY with probability 1.0
+        // Define transitions
         stateMachine.addTransition(AgentState.ENTERING_STADIUM, AgentState.INLINE_TOBUY, 1.0);
         stateMachine.addTransition(AgentState.REGISTER, AgentState.GENERAL_ZONE, 1.0);
 
-        // Other transitions remain the same
         stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.INLINE_TOBUY_FOOD, 0.3);
         stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.BATHROOM_LINE, 0.2);
         stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.WATCHING_GAME, 0.4);
@@ -90,10 +97,6 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
 
         stateMachine.addTransition(AgentState.BATHROOM_LINE, AgentState.BATHROOM, 0.7);
         stateMachine.addTransition(AgentState.BATHROOM_LINE, AgentState.GENERAL_ZONE, 0.3);
-
-        stateMachine.addTransition(AgentState.BATHROOM_LINE, AgentState.BATHROOM, 0.7);
-        stateMachine.addTransition(AgentState.BATHROOM_LINE, AgentState.GENERAL_ZONE, 0.3);
-
 
         stateMachine.addTransition(AgentState.BATHROOM, AgentState.WATCHING_GAME, 0.7);
         stateMachine.addTransition(AgentState.BATHROOM, AgentState.GENERAL_ZONE, 0.3);
@@ -131,7 +134,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
                         }
                     }
                 }
-                try{
+                try {
                     System.out.println(name + " is in the registering.");
                     goToRegisterZone();
                     Thread.sleep(SystemHandler.getInstance().getInputVariable("RegisterTime")); // Adjust duration as needed
@@ -171,6 +174,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
                 break;
 
             case BUYING_FOOD:
+                // Handled within INLINE_TOBUY_FOOD
                 break;
 
             case BATHROOM_LINE:
@@ -180,7 +184,6 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
                     setCurrentState(AgentState.BATHROOM);
                 } else {
                     System.out.println(name + " remains in the bathroom line.");
-                    // Optionally, you can wait for some time before retrying
                 }
                 break;
 
