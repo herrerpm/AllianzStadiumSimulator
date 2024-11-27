@@ -35,6 +35,10 @@ public abstract class AbstractAgent<S extends Enum<S>> implements Runnable {
         this.currentState = initialState;
     }
 
+    public void stopAgent(){
+        running = false;
+    }
+
     public void setName(String name) {
         this.name = name;
     }

@@ -139,9 +139,7 @@ public abstract class AbstractAgentHandler<S extends Enum<S>, A extends Abstract
         while (iterator.hasNext()) {
             A agent = iterator.next();
             if (agent.getName().equals(name)) {
-                // TODO: stop the thread gracefully
-//                agent.stopAgent();
-
+                agent.stopAgent();
                 // Remove the agent from the list
                 iterator.remove();
                 return true;
