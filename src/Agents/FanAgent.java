@@ -216,6 +216,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
 
             case REGISTER:
                 goToRegisterZone();
+                stateMachine.nextState();
                 break;
 
             case EXIT:
@@ -230,7 +231,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
     }
 
     private void terminate() {
-        FanHandler.getInstance().removeAgent(this);
+        FanHandler.getInstance().removeAgentByName(this.getName());
         setCurrentState(AgentState.EXIT);
         Thread.currentThread().interrupt();
     }
