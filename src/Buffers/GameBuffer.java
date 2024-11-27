@@ -59,7 +59,7 @@ public class GameBuffer extends AbstractBuffer<PlayerAgent> {
     protected void onEnter(PlayerAgent player) {
         // Update the player's state or perform actions upon entering the field.
         System.out.println(player.getName() + " has entered the field. Current Occupancy: " + getCurrentOccupancy());
-        player.setCurrentState(PlayerAgent.AgentState.PLAYING);
+//        player.setCurrentState(PlayerAgent.AgentState.PLAYING);
         // Additional actions can be implemented here (e.g., logging, UI updates)
     }
 
@@ -67,7 +67,7 @@ public class GameBuffer extends AbstractBuffer<PlayerAgent> {
     protected void onLeave(PlayerAgent player) {
         // Update the player's state or perform actions upon leaving the field.
         System.out.println(player.getName() + " has left the field. Current Occupancy: " + getCurrentOccupancy());
-        player.setCurrentState(PlayerAgent.AgentState.ON_BENCH);
+//        player.setCurrentState(PlayerAgent.AgentState.ON_BENCH);
         // Additional actions can be implemented here (e.g., logging, UI updates)
     }
 }

@@ -46,7 +46,7 @@ public class TicketSellingHandler extends AbstractAgentHandler<TicketSellerAgent
     }
 
     public void removeAgent(TicketSellerAgent seller) {
-        getAgents().remove(seller);
+        this.removeAgentByName(seller.getName());
         System.out.println(seller.getName() + " has been removed from the handler.");
     }
 

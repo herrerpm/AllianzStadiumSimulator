@@ -1,6 +1,4 @@
 package Agents;
-
-import Buffers.BathroomBuffer;
 import Buffers.GameBuffer;
 import Handlers.SystemHandler;
 import java.awt.*;
@@ -17,7 +15,8 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
     private static final int SIZE = 10;
 
     public PlayerAgent(String name) {
-        super(name, AgentState.ON_BENCH);
+        super(name, AgentState.ENTERING_FIELD);
+        goToBench();
         this.stateMachine = new PlayerStateMachine(this);
         initializeTransitions();
         position.x = 0;
@@ -26,7 +25,7 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
 
     @Override
     public void draw(Graphics g) {
-        g.setColor(getColorForState());
+        g.setColor(color);
         // Drawing logic for the player (e.g., triangle)
         // Calculate the vertices of the triangle (equilateral)
         int[] xPoints = new int[3];
@@ -46,23 +45,6 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
     protected int getWidth() {
         return SIZE;
     }
-
-
-
-    public void enterField() {
-        GameBuffer buffer = GameBuffer.getInstance();
-        buffer.tryEnterBuffer(this);
-        System.out.println(name + " is attempting to enter the field.");
-        goToField();
-    }
-
-    public void leaveField() {
-        GameBuffer buffer = GameBuffer.getInstance();
-        buffer.leaveBuffer(this);
-        goToBench();
-        System.out.println(name + " has left the field.");
-
-
     @Override
     protected int getHeight() {
         return SIZE;
@@ -73,8 +55,8 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
     }
 
     private void initializeTransitions() {
-        stateMachine.addTransition(PlayerAgent.AgentState.ON_BENCH, AgentState.PLAYING, 0.95);
-        stateMachine.addTransition(AgentState.PLAYING, AgentState.ON_BENCH, 0.05);
+        stateMachine.addTransition(PlayerAgent.AgentState.ON_BENCH, AgentState.ENTERING_FIELD, 0.5);
+        stateMachine.addTransition(AgentState.PLAYING, AgentState.ON_BENCH, 0.5);
     }
 
     public void performAction() {
@@ -85,6 +67,7 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
                 boolean entered = GameBuffer.getInstance().tryEnterBuffer(this);
                 if (entered) {
                     setCurrentState(AgentState.PLAYING);
+                    goToField();
                 } else {
                     System.out.println(name + " remains waiting the substitution.");
                 }
@@ -94,7 +77,6 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
                 try {
                     // Simulate time spent in the bathroom
                     System.out.println(name + " is using the bathroom.");
-                    goToField();
                     Thread.sleep(SystemHandler.getInstance().getInputVariable("EnteringStadium"));
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -120,10 +102,10 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
 
     @Override
     public void _run() {
-        performAction();
         System.out.println("----------------------------\n");
         try {
             Thread.sleep(SystemHandler.getInstance().getInputVariable("PlayerStateChangeTime"));
+            performAction();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
