@@ -4,6 +4,7 @@ import Agents.AbstractAgent;
 import Managers.ThreadManager;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -14,11 +15,9 @@ import java.util.List;
  */
 public abstract class AbstractAgentHandler<S extends Enum<S>, A extends AbstractAgent<S>> {
     protected final List<A> agents;
-    protected final List<Thread> agentThreads;
 
     protected AbstractAgentHandler() {
         this.agents = new ArrayList<>();
-        this.agentThreads = new ArrayList<>();
     }
 
     /**
@@ -38,12 +37,43 @@ public abstract class AbstractAgentHandler<S extends Enum<S>, A extends Abstract
             agents.add(agent);
 
             // Create a unique thread name, e.g., "Agent-1", "Agent-2", etc.
-            String threadName = "Agent-" + (i + 1);
+            String threadName = agent.getName(); // Assuming agent names are unique
 
             // Use ThreadManager to create and start the thread for the agent
-            Thread thread = threadManager.createAndStartThread((Runnable) agent, threadName);
-            agentThreads.add(thread);
+            Thread thread = threadManager.createAndStartThread(agent, threadName);
+
+            // Assign the thread to the agent
+            agent.setThread(thread);
         }
+    }
+
+    /**
+     * Creates and starts a single agent with a custom name.
+     *
+     * This method uses the ThreadManager to create and manage the thread for the custom agent.
+     *
+     * @param name The custom name for the agent.
+     * @return The created agent.
+     */
+    public A createCustomAgent(String name) {
+        ThreadManager threadManager = ThreadManager.getInstance();
+
+        // Instantiate the agent using the factory method
+        A agent = createAgent();
+
+        // Set the custom name for the agent
+        agent.setName(name);
+
+        // Add the agent to the list
+        agents.add(agent);
+
+        // Use ThreadManager to create and start the thread for the agent
+        Thread thread = threadManager.createAndStartThread(agent, name);
+
+        // Assign the thread to the agent
+        agent.setThread(thread);
+
+        return agent; // Return the created agent
     }
 
     /**
@@ -65,67 +95,56 @@ public abstract class AbstractAgentHandler<S extends Enum<S>, A extends Abstract
     }
 
     /**
-     * Returns a list of all agent threads.
+     * Returns the count of agents in a specific state.
+     *
+     * @param state The state to filter agents by.
+     * @return The number of agents in the specified state.
+     */
+    public int getAgentCountByState(S state) {
+        int count = 0;
+        for (A agent : agents) {
+            if (agent.getCurrentState() == state) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * Retrieves all threads associated with the agents.
      *
      * @return List of threads.
      */
     public List<Thread> getAgentThreads() {
-        return new ArrayList<>(agentThreads);
-    }
-
-    /**
-     * Retrieves a list of agents that are currently in the specified state.
-     *
-     * @param state The state to filter agents by.
-     * @return List of agents in the specified state.
-     */
-    public List<A> getAgentsByState(S state) {
-        List<A> agentsInState = new ArrayList<>();
+        List<Thread> threads = new ArrayList<>();
         for (A agent : agents) {
-            if (agent.getCurrentState() == state) {
-                agentsInState.add(agent);
+            Thread thread = agent.getThread();
+            if (thread != null) {
+                threads.add(thread);
             }
         }
-        return agentsInState;
+        return threads;
     }
 
     /**
-     * Counts the number of agents currently in the specified state.
+     * Removes an agent by its name.
      *
-     * @param state The state to filter agents by.
-     * @return Number of agents in the specified state.
-     */
-    public int getAgentCountByState(S state) {
-        return (int) agents.stream()
-                .filter(agent -> agent.getCurrentState() == state)
-                .count();
-    }
-
-    /**
-     * Retrieves a list of threads that are in the specified Thread.State.
+     * This method stops the agent's thread and removes it from the list of managed agents.
      *
-     * @param state The thread state to filter by.
-     * @return List of threads in the specified state.
+     * @param name The name of the agent to remove.
+     * @return true if the agent was found and removed; false otherwise.
      */
-    public List<Thread> getThreadsByState(Thread.State state) {
-        List<Thread> threadsInState = new ArrayList<>();
-        for (Thread thread : agentThreads) {
-            if (thread.getState() == state) {
-                threadsInState.add(thread);
+    public boolean removeAgentByName(String name) {
+        Iterator<A> iterator = agents.iterator();
+        while (iterator.hasNext()) {
+            A agent = iterator.next();
+            if (agent.getName().equals(name)) {
+                agent.stopAgent();
+                // Remove the agent from the list
+                iterator.remove();
+                return true;
             }
         }
-        return threadsInState;
-    }
-
-    /**
-     * Counts the number of threads currently in the specified Thread.State.
-     *
-     * @param state The thread state to filter by.
-     * @return Number of threads in the specified state.
-     */
-    public int getThreadCountByState(Thread.State state) {
-        return (int) agentThreads.stream()
-                .filter(thread -> thread.getState() == state)
-                .count();
+        return false; // Agent not found
     }
 }

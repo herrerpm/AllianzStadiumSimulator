@@ -1,89 +1,72 @@
 package Agents;
 
-import Handlers.SellingHandler;
-
-import java.util.LinkedList;
-import java.util.Queue;
+import Handlers.SystemHandler;
+import Handlers.TicketSellingHandler;
+import java.awt.*;
 
 public class TicketSellerAgent extends AbstractAgent<TicketSellerAgent.AgentState> implements Runnable {
 
     public enum AgentState {
         SELLING,
-        WAITING
+        WAITING,
+        FINISHED
     }
 
-    private final String name;
-    private final SellingHandler handler;
-    private final Object sellerLock = new Object();
-    private final Queue<FanAgent> requestQueue = new LinkedList<>();
-
-    public TicketSellerAgent(String name, SellingHandler handler) {
-        super(AgentState.WAITING);
-        this.name = name;
-        this.handler = handler;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Object getSellerLock() {
-        return sellerLock;
-    }
-
-    public void addRequest(FanAgent fanAgent) {
-        synchronized (requestQueue) {
-            requestQueue.add(fanAgent);
-            requestQueue.notify();
-        }
+    private static final int SIDE_LENGTH = 12;
+    private static final int TIMEOUT = SystemHandler.getInstance().getInputVariable("TicketSellerTerminateTime");
+    private long waitingStartTime;
+    private volatile boolean running;
+    public TicketSellerAgent(String name) {
+        super(name, AgentState.WAITING);
+        position.x = 10;
+        position.y = 150;
+        running = true;
     }
 
     @Override
-    public void run() {
-        while (true) {
-            FanAgent fanAgent = null;
-            synchronized (requestQueue) {
-                while (requestQueue.isEmpty()) {
-                    try {
-                        requestQueue.wait();
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        System.out.println(name + " was interrupted.");
-                        return;
-                    }
-                }
-                fanAgent = requestQueue.poll();
-            }
-
-            if (fanAgent != null) {
-                processRequest(fanAgent);
-            }
-        }
+    public void draw(Graphics g) {
+        g.setColor(getColorForState());
+        g.fillRect(position.x, position.y, SIDE_LENGTH, SIDE_LENGTH);
     }
 
-    private void processRequest(FanAgent fanAgent) {
-        Object firstLock, secondLock;
-        firstLock = this.sellerLock;
-        secondLock = fanAgent.getFanLock();
-        synchronized (firstLock) {
-            synchronized (secondLock) {
-                System.out.println(name + " is selling a ticket to " + fanAgent.getName());
-                sellTicket(fanAgent);
-                fanAgent.getFanLock().notify();
-            }
-        }
+    @Override
+    protected int getWidth() {
+        return SIDE_LENGTH;
     }
 
-    private void sellTicket(FanAgent fanAgent) {
-        this.setCurrentState(AgentState.SELLING);
-        System.out.println(name + " starts selling a ticket to " + fanAgent.getName());
+    @Override
+    protected int getHeight() {
+        return SIDE_LENGTH;
+    }
+
+    private Color getColorForState() {
+        return currentState == AgentState.SELLING ? Color.GREEN : Color.LIGHT_GRAY;
+    }
+
+    @Override
+    public void _run() {
+        // The seller's actions are managed by the TransactionManager
         try {
-            Thread.sleep(500);
+            if (currentState == AgentState.WAITING) {
+                if (waitingStartTime == 0) {
+                    waitingStartTime = System.currentTimeMillis(); // Record when waiting starts
+                } else if (System.currentTimeMillis() - waitingStartTime > TIMEOUT) {
+                    // Timeout reached
+                    System.out.println(getName() + " has been in WAITING state for too long. Terminating...");
+                    setCurrentState(AgentState.FINISHED);
+                    this.setRunning(false);
+                    TicketSellingHandler.getInstance().removeAgent(this);
+                    return;
+                }
+            } else {
+                waitingStartTime = 0; // Reset the timer if not in WAITING state
+            }
+
+            Thread.sleep(1000); // Adjust as needed
+            goToTickets();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            System.out.println(name + " interrupted while selling a ticket.");
+            System.out.println(getName() + " interrupted.");
         }
-        System.out.println(name + " has sold a ticket to " + fanAgent.getName());
-        this.setCurrentState(AgentState.WAITING);
     }
 }
