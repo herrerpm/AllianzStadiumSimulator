@@ -27,12 +27,13 @@ public class SystemHandler {
         inputVariables.put("capacidadBaños", 6);
         inputVariables.put("TicketSellerTime", 3000);
         inputVariables.put("FoodSellerTime", 3000);
-        inputVariables.put("PlayerStateChangeTime", 10000);
+        inputVariables.put("PlayerStateChangeTime", 2000);
         inputVariables.put("AgentSpeed", 100);
         inputVariables.put("BathroomTime", 2000);
         inputVariables.put("FanStateChangeTime", 3000);
         inputVariables.put("TicketSellerTerminateTime", 10000);
-        inputVariables.put("UpdateInterval", 500);
+        inputVariables.put("UpdateInterval", 1000);
+        inputVariables.put("SeatsCapacity", 0);
         inputVariables.put("RegisterTime", 1000);
         inputVariables.put("EnteringStadium", 1000);
     }
@@ -54,6 +55,11 @@ public class SystemHandler {
         return inputVariables.getOrDefault(key, 0);
     }
     public void instantiateAgents(){
+
+        BathroomBuffer.getInstance(SystemHandler.getInstance().getInputVariable("capacidadBaños"));
+        GameBuffer.getInstance(SystemHandler.getInstance().getInputVariable("njugadores"));
+
+
         fanHandler = FanHandler.getInstance();
         ticketSellingHandler = TicketSellingHandler.getInstance();
         foodSellingHandler = FoodSellingHandler.getInstance();
@@ -65,6 +71,8 @@ public class SystemHandler {
         int vendedoresComida = getInputVariable("vendedoresComida");
         int ticketSellerTime = getInputVariable("TicketSellerTime");
         int foodSellerTime = getInputVariable("FoodSellerTime");
+
+
 
         FanHandler.getInstance().createAgents(nfans);
         TicketSellingHandler.getInstance().createAgents(vendedoresBoletos);
@@ -83,8 +91,7 @@ public class SystemHandler {
                 foodSellerTime
         );
 
-        BathroomBuffer.getInstance(SystemHandler.getInstance().getInputVariable("capacidadBaños"));
-        GameBuffer.getInstance(SystemHandler.getInstance().getInputVariable("njugadores"));
+
 
     }
 

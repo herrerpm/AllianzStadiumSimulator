@@ -1,6 +1,4 @@
 package Agents;
-
-import Buffers.BathroomBuffer;
 import Buffers.GameBuffer;
 import Handlers.SystemHandler;
 import java.awt.*;
@@ -17,7 +15,8 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
     private static final int SIZE = 10;
 
     public PlayerAgent(String name) {
-        super(name, AgentState.ON_BENCH);
+        super(name, AgentState.ENTERING_FIELD);
+        goToBench();
         this.stateMachine = new PlayerStateMachine(this);
         initializeTransitions();
         position.x = 0;
@@ -26,13 +25,14 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
 
     @Override
     public void draw(Graphics g) {
-        g.setColor(getColorForState());
-        // Calcular los vértices del triángulo (equilátero)
+        g.setColor(color);
+        // Drawing logic for the player (e.g., triangle)
+        // Calculate the vertices of the triangle (equilateral)
         int[] xPoints = new int[3];
         int[] yPoints = new int[3];
 
         for (int i = 0; i < 3; i++) {
-            double angle = Math.toRadians(120 * i - 90); // Ángulos: -90°, 30°, 150°
+            double angle = Math.toRadians(120 * i - 90);
             xPoints[i] = position.x + (int) (SIZE * Math.cos(angle));
             yPoints[i] = position.y + (int) (SIZE * Math.sin(angle));
         }
@@ -45,7 +45,6 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
     protected int getWidth() {
         return SIZE;
     }
-
     @Override
     protected int getHeight() {
         return SIZE;
@@ -56,26 +55,11 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
     }
 
     private void initializeTransitions() {
-        stateMachine.addTransition(AgentState.ON_BENCH, AgentState.PLAYING, 0.7);
-        stateMachine.addTransition(AgentState.PLAYING, AgentState.ON_BENCH, 0.3);
-    }
-
-    public void enterField() {
-        GameBuffer buffer = GameBuffer.getInstance();
-        buffer.tryEnterBuffer(this);
-        System.out.println(name + " is attempting to enter the field.");
-        goToField();
-    }
-
-    public void leaveField() {
-        GameBuffer buffer = GameBuffer.getInstance();
-        buffer.leaveBuffer(this);
-        goToBench();
-        System.out.println(name + " has left the field.");
+        stateMachine.addTransition(PlayerAgent.AgentState.ON_BENCH, AgentState.ENTERING_FIELD, 0.5);
+        stateMachine.addTransition(AgentState.PLAYING, AgentState.ON_BENCH, 0.5);
     }
 
     public void performAction() {
-        PlayerAgent.AgentState currentState = stateMachine.getCurrentState();
         System.out.println(name + " Current State: " + currentState);
         switch (currentState) {
             case ENTERING_FIELD:
@@ -83,6 +67,7 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
                 boolean entered = GameBuffer.getInstance().tryEnterBuffer(this);
                 if (entered) {
                     setCurrentState(AgentState.PLAYING);
+                    goToField();
                 } else {
                     System.out.println(name + " remains waiting the substitution.");
                 }
@@ -92,7 +77,6 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
                 try {
                     // Simulate time spent in the bathroom
                     System.out.println(name + " is using the bathroom.");
-                    goToField();
                     Thread.sleep(SystemHandler.getInstance().getInputVariable("EnteringStadium"));
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -118,10 +102,10 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
 
     @Override
     public void _run() {
-        performAction();
         System.out.println("----------------------------\n");
         try {
             Thread.sleep(SystemHandler.getInstance().getInputVariable("PlayerStateChangeTime"));
+            performAction();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
