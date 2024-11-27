@@ -240,6 +240,7 @@ public class ModeSelectorWindow implements ConnectionListener {
         new InputWindow(); // Prompt for simulation inputs
         new TableStates();  // Initialize the state tables
         new Entrance("UI", GraphicsManager.getInstance().initialize());
+        new Credits();
         // Add zone A to the server
         SystemHandler.getInstance().getInputVariables().put("Zone", 0);
         parentFrame.dispose(); // Close the mode selector window
@@ -263,9 +264,10 @@ public class ModeSelectorWindow implements ConnectionListener {
             // Launch main simulation windows
             new InputWindow();  // Prompt for simulation inputs
             new TableStates();   // Initialize the state tables
+            new Entrance("UI", GraphicsManager.getInstance().initialize());
             // Add zone A to the server
             SystemHandler.getInstance().getInputVariables().put("Zone", 0);
-
+            new Credits();
             // Close the mode selector window
             frame.dispose();
         });
@@ -285,6 +287,7 @@ public class ModeSelectorWindow implements ConnectionListener {
             JPanel threads = GraphicsManager.getInstance().initialize();
             new Entrance("Entrance A", threads);
             GraphicsManager.getInstance().triggerRepaint();
+            new Credits();
             // Add zone B to the server
             SystemHandler.getInstance().getInputVariables().put("Zone", 1);
             // Close the mode selector window
