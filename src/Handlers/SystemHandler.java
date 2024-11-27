@@ -1,6 +1,7 @@
 package Handlers;
 
 import Buffers.BathroomBuffer;
+import Buffers.GameBuffer;
 import Managers.FanFoodSellerTransactionManager;
 import Managers.FanTicketSellerTransactionManager;
 
@@ -34,6 +35,7 @@ public class SystemHandler {
         inputVariables.put("UpdateInterval", 500);
         inputVariables.put("SeatsCapacity", 0);
         inputVariables.put("RegisterTime", 1000);
+        inputVariables.put("EnteringStadium", 1000);
     }
     public static SystemHandler getInstance(){
         if(instance == null){
@@ -83,6 +85,7 @@ public class SystemHandler {
         );
 
         BathroomBuffer.getInstance(SystemHandler.getInstance().getInputVariable("capacidadBaños"));
+        GameBuffer.getInstance(SystemHandler.getInstance().getInputVariable("njugadores"));
 
     }
 

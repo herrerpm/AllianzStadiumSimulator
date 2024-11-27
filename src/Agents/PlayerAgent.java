@@ -1,23 +1,29 @@
 package Agents;
 
+import Buffers.BathroomBuffer;
+import Buffers.GameBuffer;
 import Handlers.SystemHandler;
-
 import java.awt.*;
 
 public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implements Runnable {
 
     public enum AgentState {
         PLAYING,
+        ENTERING_FIELD,
         ON_BENCH,
     }
 
-    public PlayerStateMachine getStateMachine() {
-        return stateMachine;
+    private final PlayerStateMachine stateMachine;
+    private static final int SIZE = 10;
+
+    public PlayerAgent(String name) {
+        super(name, AgentState.ON_BENCH);
+        this.stateMachine = new PlayerStateMachine(this);
+        initializeTransitions();
+        position.x = 0;
+        position.y = 0;
     }
 
-    private final PlayerStateMachine stateMachine;
-
-    private static final int size = 5;
     @Override
     public void draw(Graphics g) {
         g.setColor(getColorForState());
@@ -27,42 +33,79 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
 
         for (int i = 0; i < 3; i++) {
             double angle = Math.toRadians(120 * i - 90); // Ángulos: -90°, 30°, 150°
-            xPoints[i] = position.x + (int) (size * Math.cos(angle));
-            yPoints[i] = position.y + (int) (size * Math.sin(angle));
+            xPoints[i] = position.x + (int) (SIZE * Math.cos(angle));
+            yPoints[i] = position.y + (int) (SIZE * Math.sin(angle));
         }
 
-        g.fillPolygon(xPoints, yPoints, 3);
+        g.fillPolygon(xPoints, yPoints,3);
+
     }
+
+    @Override
+    protected int getWidth() {
+        return SIZE;
+    }
+
+    @Override
+    protected int getHeight() {
+        return SIZE;
+    }
+
     private Color getColorForState() {
         return currentState == AgentState.PLAYING ? Color.RED : Color.YELLOW;
     }
 
-    public PlayerAgent(String name) {
-        // Set the initial state to ENTERING_STADIUM
-        super(name, AgentState.ON_BENCH);
-        this.stateMachine = new PlayerStateMachine(this); // Pass the agent to the state machine
-        initializeTransitions();
-        position.x = 0;
-        position.y = 0;
+    private void initializeTransitions() {
+        stateMachine.addTransition(AgentState.ON_BENCH, AgentState.PLAYING, 0.7);
+        stateMachine.addTransition(AgentState.PLAYING, AgentState.ON_BENCH, 0.3);
     }
 
-    private void initializeTransitions() {
-        // Define transition from ENTERING_STADIUM to INLINE_TOBUY with probability 1.0
-        stateMachine.addTransition(PlayerAgent.AgentState.ON_BENCH, AgentState.PLAYING, 1.0);
-        stateMachine.addTransition(AgentState.PLAYING, AgentState.ON_BENCH, 0.7);
+    public void enterField() {
+        GameBuffer buffer = GameBuffer.getInstance();
+        buffer.tryEnterBuffer(this);
+        System.out.println(name + " is attempting to enter the field.");
+        goToField();
+    }
+
+    public void leaveField() {
+        GameBuffer buffer = GameBuffer.getInstance();
+        buffer.leaveBuffer(this);
+        goToBench();
+        System.out.println(name + " has left the field.");
     }
 
     public void performAction() {
         PlayerAgent.AgentState currentState = stateMachine.getCurrentState();
         System.out.println(name + " Current State: " + currentState);
         switch (currentState) {
+            case ENTERING_FIELD:
+                System.out.println(name + " is waiting to enter the field.");
+                boolean entered = GameBuffer.getInstance().tryEnterBuffer(this);
+                if (entered) {
+                    setCurrentState(AgentState.PLAYING);
+                } else {
+                    System.out.println(name + " remains waiting the substitution.");
+                }
+                break;
+
             case PLAYING:
-                System.out.println(name + " is on field playing.");
+                try {
+                    // Simulate time spent in the bathroom
+                    System.out.println(name + " is using the bathroom.");
+                    goToField();
+                    Thread.sleep(SystemHandler.getInstance().getInputVariable("EnteringStadium"));
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    System.out.println(name + " was interrupted while entering the field");
+                } finally {
+                    GameBuffer.getInstance().leaveBuffer(this);
+                }
                 stateMachine.nextState();
                 break;
 
             case ON_BENCH:
-                System.out.println(name + " is subbed off, now is on the bench.");
+                System.out.println(name + " is on the bench.");
+                goToBench();
                 stateMachine.nextState();
                 break;
 
@@ -71,6 +114,7 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
                 break;
         }
     }
+
 
     @Override
     public void _run() {
@@ -83,5 +127,4 @@ public class PlayerAgent extends AbstractAgent<PlayerAgent.AgentState> implement
         }
         System.out.println(name + " has completed all simulation steps.");
     }
-
 }

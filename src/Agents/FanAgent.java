@@ -1,11 +1,10 @@
 package Agents;
 
 import Handlers.FanHandler;
-import Handlers.SellingHandler;
 import Handlers.SystemHandler;
-import Managers.GraphicsManager;
 import Managers.FanFoodSellerTransactionManager;
 import Managers.FanTicketSellerTransactionManager;
+import Managers.GraphicsManager;
 import Buffers.BathroomBuffer;
 
 import java.awt.*;
@@ -19,16 +18,20 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
         BUYING_TICKET,
         BUYING_FOOD,
         INLINE_TOBUY_FOOD,
-        BATHROOM_LINE,          // New state: waiting in line to use the bathroom
+        BATHROOM_LINE,
         BATHROOM,
         WATCHING_GAME,
         GENERAL_ZONE,
         EXIT
     }
 
+    public void setCurrentState(FanAgent.AgentState state) {
+        this.stateMachine.setCurrentState(state);
+    }
+
     private final FanStateMachine stateMachine;
 
-    private final static int diameter = 20;
+    private static final int DIAMETER = 10;
 
     public FanAgent(String name) {
         // Set the initial state to ENTERING_STADIUM
@@ -41,8 +44,18 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
 
     @Override
     public void draw(Graphics g) {
-        g.setColor(getColorForState()); // Ensure color is set based on state
-        g.fillOval(position.x, position.y, diameter, diameter);
+        g.setColor(color);
+        g.fillOval(position.x, position.y, DIAMETER, DIAMETER);
+    }
+
+    @Override
+    protected int getWidth() {
+        return DIAMETER;
+    }
+
+    @Override
+    protected int getHeight() {
+        return DIAMETER;
     }
 
     private Color getColorForState() {
@@ -73,11 +86,10 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
     }
 
     private void initializeTransitions() {
-        // Define transition from ENTERING_STADIUM to INLINE_TOBUY with probability 1.0
+        // Define transitions
         stateMachine.addTransition(AgentState.ENTERING_STADIUM, AgentState.INLINE_TOBUY, 1.0);
         stateMachine.addTransition(AgentState.REGISTER, AgentState.GENERAL_ZONE, 1.0);
 
-        // Other transitions remain the same
         stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.INLINE_TOBUY_FOOD, 0.3);
         stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.BATHROOM_LINE, 0.2);
         stateMachine.addTransition(AgentState.GENERAL_ZONE, AgentState.WATCHING_GAME, 0.4);
@@ -100,74 +112,78 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
         switch (currentState) {
             case ENTERING_STADIUM:
                 System.out.println(name + " is entering the stadium.");
-                if (!isDestinationSet()) {
-                    goToEntrance();
-                }
-                if (hasReachedDestination()) {
-                    stateMachine.nextState();
-                }
+                goToEntrance();
+                stateMachine.nextState();
                 break;
 
             case INLINE_TOBUY:
                 System.out.println(name + " is waiting in line to buy a ticket.");
-                if (!isDestinationSet()) {
-                    goToTickets();
+                goToTickets();
+                // Start transaction (will block until a seller is available)
+                FanTicketSellerTransactionManager.getInstance().handleTransaction(this);
+
+                // Wait for transaction to complete
+                synchronized (this) {
+                    while (getCurrentState() == AgentState.BUYING_TICKET) {
+                        try {
+                            wait();
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            System.out.println(name + " interrupted while waiting for transaction to complete.");
+                            return;
+                        }
+                    }
                 }
-                if (hasReachedDestination()) {
-                    // Start transaction (will block until a seller is available)
-                    FanTicketSellerTransactionManager.getInstance().handleTransaction(this);
+                try {
+                    System.out.println(name + " is in the registering.");
+                    goToRegisterZone();
+                    Thread.sleep(SystemHandler.getInstance().getInputVariable("RegisterTime")); // Adjust duration as needed
+
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    System.out.println(name + " was interrupted while registering.");
                 }
+                // After transaction, proceed to next state
+                stateMachine.nextState();
                 break;
 
             case BUYING_TICKET:
-                // This state is handled by the transaction manager
-                break;
-
-            case REGISTER:
-                System.out.println(name + " is registering.");
-                if (!isDestinationSet()) {
-                    goToRegisterZone();
-                }
-                if (hasReachedDestination()) {
-                    try {
-                        System.out.println(name + " is in the registering.");
-                        Thread.sleep(SystemHandler.getInstance().getInputVariable("RegisterTime")); // Adjust duration as needed
-                    } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt();
-                        System.out.println(name + " was interrupted while registering.");
-                    }
-                    stateMachine.nextState();
-                }
+                // This case should not occur, as we handle BUYING_TICKET in INLINE_TOBUY
                 break;
 
             case INLINE_TOBUY_FOOD:
                 System.out.println(name + " is waiting in line to buy food.");
-                if (!isDestinationSet()) {
-                    goToFoodZone();
+                goToFoodZone();
+                // Start transaction (will block until a seller is available)
+                FanFoodSellerTransactionManager.getInstance().handleTransaction(this);
+
+                // Wait for transaction to complete
+                synchronized (this) {
+                    while (getCurrentState() == AgentState.BUYING_FOOD) {
+                        try {
+                            wait();
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            System.out.println(name + " interrupted while waiting for food transaction to complete.");
+                            return;
+                        }
+                    }
                 }
-                if (hasReachedDestination()) {
-                    // Start transaction (will block until a seller is available)
-                    FanFoodSellerTransactionManager.getInstance().handleTransaction(this);
-                }
+                // After transaction, proceed to next state
+                stateMachine.nextState();
                 break;
 
             case BUYING_FOOD:
-                // This state is handled by the transaction manager
+                // Handled within INLINE_TOBUY_FOOD
                 break;
 
             case BATHROOM_LINE:
                 System.out.println(name + " is waiting in line to use the bathroom.");
-                if (!isDestinationSet()) {
-                    goToBathroomZone();
-                }
-                if (hasReachedDestination()) {
-                    boolean entered = BathroomBuffer.getInstance().tryEnterBuffer(this);
-                    if (entered) {
-                        setCurrentState(AgentState.BATHROOM);
-                    } else {
-                        System.out.println(name + " remains in the bathroom line.");
-                        // Optionally, you can wait for some time before retrying
-                    }
+                boolean entered = BathroomBuffer.getInstance().tryEnterBuffer(this);
+                if (entered) {
+                    setCurrentState(AgentState.BATHROOM);
+                } else {
+                    System.out.println(name + " remains in the bathroom line.");
                 }
                 break;
 
@@ -175,7 +191,7 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
                 try {
                     // Simulate time spent in the bathroom
                     System.out.println(name + " is using the bathroom.");
-                    goToBathroomZone(); // Possibly move to a specific bathroom point
+                    goToBathroomZone();
                     Thread.sleep(SystemHandler.getInstance().getInputVariable("BathroomTime")); // Adjust duration as needed
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
@@ -188,26 +204,22 @@ public class FanAgent extends AbstractAgent<FanAgent.AgentState> implements Runn
 
             case WATCHING_GAME:
                 System.out.println(name + " is watching the game.");
-                if (!isDestinationSet()) {
-                    goToStands();
-                }
-                if (hasReachedDestination()) {
-                    stateMachine.nextState();
-                }
+                goToStands();
+                stateMachine.nextState();
                 break;
 
             case GENERAL_ZONE:
                 System.out.println(name + " is in the general zone.");
-                if (!isDestinationSet()) {
-                    goToGeneralZone();
-                }
-                if (hasReachedDestination()) {
-                    stateMachine.nextState();
-                }
+                goToGeneralZone();
+                stateMachine.nextState();
+                break;
+
+            case REGISTER:
+                goToRegisterZone();
                 break;
 
             case EXIT:
-                System.out.println(name + " is exiting the stadium.");
+                System.out.println(name + " Exit the stadium");
                 terminate();
                 break;
 

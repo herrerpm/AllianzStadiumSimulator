@@ -3,10 +3,12 @@ package Managers;
 import Agents.FanAgent;
 import Agents.PlayerAgent;
 import Agents.TicketSellerAgent;
+import Agents.FoodSellerAgent;
 import Handlers.FanHandler;
 import Handlers.PlayerHandler;
-import Handlers.SellingHandler;
+import Handlers.TicketSellingHandler;
 import Handlers.SystemHandler;
+import Handlers.FoodSellingHandler;
 
 import javax.swing.*;
 import java.awt.*;
@@ -51,14 +53,9 @@ public class GraphicsManager {
             triggerRepaint();
         });
         timer.start();
-
         return drawPanel;
     }
 
-
-    public Graphics getGraphics(){
-        return drawPanel.getGraphics();
-    }
     private void updateAgentPositions() {
         // Actualiza las posiciones de los FanAgents
         for (FanAgent fan : FanHandler.getInstance().getAgents()) {
@@ -69,7 +66,11 @@ public class GraphicsManager {
             player.updatePosition();
         }
         // Actualiza las posiciones de los TicketSellerAgents
-        for (TicketSellerAgent seller : SellingHandler.getInstance().getAgents()) {
+        for (TicketSellerAgent seller : TicketSellingHandler.getInstance().getAgents()) {
+            seller.updatePosition();
+        }
+
+        for (FoodSellerAgent seller : FoodSellingHandler.getInstance().getAgents()) {
             seller.updatePosition();
         }
     }
@@ -78,20 +79,21 @@ public class GraphicsManager {
     // Draws all agents by iterating over them
     private void drawGraphics(Graphics g) {
         // Draw FanAgents
-//        g.setColor(Color.BLUE);
         for (FanAgent fan : FanHandler.getInstance().getAgents()) {
             fan.draw(g);
         }
 
         // Draw PlayerAgents
-        g.setColor(Color.RED);
         for (PlayerAgent player : PlayerHandler.getInstance().getAgents()) {
             player.draw(g);
         }
 
         // Draw TicketSellerAgents
-        g.setColor(Color.GREEN);
-        for (TicketSellerAgent seller : SellingHandler.getInstance().getAgents()) {
+        for (TicketSellerAgent seller : TicketSellingHandler.getInstance().getAgents()) {
+            seller.draw(g);
+        }
+
+        for (FoodSellerAgent seller : FoodSellingHandler.getInstance().getAgents()) {
             seller.draw(g);
         }
     }
